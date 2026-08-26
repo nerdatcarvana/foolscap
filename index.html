@@ -28,6 +28,8 @@
   --indigo:     #33488F;
   --moss:       #40662F;
   --sel:        rgba(22, 112, 110, .22);
+  --find:       rgba(202, 150, 30, .32);
+  --find-cur:   rgba(202, 150, 30, .62);
   --hl:         #EFE0BC;
   --veil:       rgba(29, 35, 33, .38);
 
@@ -65,6 +67,8 @@
   --indigo:     #93A9E8;
   --moss:       #94C47C;
   --sel:        rgba(95, 200, 192, .24);
+  --find:       rgba(213, 172, 99, .26);
+  --find-cur:   rgba(213, 172, 99, .55);
   --hl:         #4A3D22;
   --veil:       rgba(0, 0, 0, .55);
   color-scheme: dark;
@@ -235,6 +239,21 @@ button {
 .find input:focus { outline: none; border-color: var(--tint); }
 .find .tool { border: 1px solid var(--rule); }
 .find .count { min-width: 74px; }
+.find .hint {
+  color: var(--ink-faint);
+  text-transform: none;
+  letter-spacing: .01em;
+  font-size: 11.5px;
+  margin-left: 2px;
+}
+.find .opts { display: flex; gap: 1px; }
+.find .opts .tool {
+  border: 1px solid var(--rule);
+  min-width: 26px;
+  font-size: 11px;
+}
+.find .opts .tool.on { background: var(--tint); color: var(--sheet); border-color: var(--tint); }
+#jumpInput { width: 130px; }
 
 /* ---------- workspace ---------- */
 
@@ -244,19 +263,139 @@ button {
   min-height: 0;
   position: relative;
 }
+.side-foot.warn { color: var(--mark); }
 
-.outline {
+.side {
   width: 0;
   flex: 0 0 auto;
-  overflow: hidden auto;
+  overflow: hidden;
   background: var(--sheet-alt);
   border-right: 1px solid var(--rule);
   transition: width .16s ease;
+  display: flex;
+  flex-direction: column;
 }
-body.outline-open .outline { width: 230px; }
-.outline-inner { padding: 14px 8px 30px 14px; }
+body.side-open .side { width: 258px; }
+
+.side-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 8px 8px 12px;
+  border-bottom: 1px solid var(--rule);
+  flex: 0 0 auto;
+}
+.ws-pick {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--ink);
+  text-align: left;
+}
+.ws-pick:hover { background: var(--sheet); }
+.ws-pick span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-pick .chev { width: 13px; height: 13px; flex: 0 0 auto; color: var(--ink-faint); }
+
+.tabs { display: flex; flex: 0 0 auto; border-bottom: 1px solid var(--rule); }
+.tab {
+  flex: 1 1 0;
+  padding: 7px 0 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 2px solid transparent;
+}
+.tab:hover { color: var(--ink-soft); }
+.tab.on { color: var(--mark); border-bottom-color: var(--mark); }
+
+.side-body { flex: 1 1 auto; overflow: hidden auto; min-height: 0; }
+.panel { display: none; padding: 10px 8px 24px 12px; }
+.panel.on { display: block; }
+.panel h3 { margin: 12px 0 6px; }
+.panel h3:first-child { margin-top: 0; }
+
+#fileFilter {
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 5px 8px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+#fileFilter:focus { outline: none; border-color: var(--tint); }
+
+.rows { display: flex; flex-direction: column; gap: 1px; }
+.row {
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+  min-width: 0;
+}
+.row:hover { background: var(--sheet); }
+.row.on { background: var(--tint-soft); }
+.row-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 6px;
+  text-align: left;
+}
+.row-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.row.on .row-name { color: var(--tint); font-weight: 600; }
+.row-meta {
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .06em;
+  color: var(--ink-faint);
+}
+.row-act {
+  flex: 0 0 auto;
+  width: 22px; height: 22px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  color: var(--ink-faint);
+}
+.row:hover .row-act { display: flex; }
+.row-act:hover { background: var(--rule-soft); color: var(--mark); }
+.row-act .ic { width: 13px; height: 13px; }
+
+.side-foot {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-top: 1px solid var(--rule);
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink-faint);
+}
+.side-foot:hover { color: var(--tint); }
+
 .outline h2 { margin: 0 0 10px; }
-.outline a {
+.panel a {
   display: block;
   padding: 3px 6px 3px 0;
   font-size: 12.5px;
@@ -266,14 +405,14 @@ body.outline-open .outline { width: 230px; }
   border-left: 2px solid transparent;
   border-radius: 2px;
 }
-.outline a:hover { color: var(--tint); border-left-color: var(--tint); }
-.outline a[data-l="1"] { padding-left: 8px; color: var(--ink); font-weight: 600; }
-.outline a[data-l="2"] { padding-left: 20px; }
-.outline a[data-l="3"] { padding-left: 32px; }
-.outline a[data-l="4"], .outline a[data-l="5"], .outline a[data-l="6"] {
+.panel a:hover { color: var(--tint); border-left-color: var(--tint); }
+.panel a[data-l="1"] { padding-left: 8px; color: var(--ink); font-weight: 600; }
+.panel a[data-l="2"] { padding-left: 20px; }
+.panel a[data-l="3"] { padding-left: 32px; }
+.panel a[data-l="4"], .panel a[data-l="5"], .panel a[data-l="6"] {
   padding-left: 44px; font-size: 11.5px;
 }
-.outline .empty { font-size: 12px; color: var(--ink-faint); padding: 2px 0; }
+.panel .empty { font-size: 12px; color: var(--ink-faint); padding: 2px 0; }
 
 .pane { min-width: 0; position: relative; background: var(--sheet); }
 .pane-source { flex: 1 1 50%; }
@@ -299,6 +438,24 @@ body[data-mode="preview"] .pane-preview { flex: 1 1 100%; border-left: 0; }
 /* ---------- source pane: textarea over a highlighted mirror ---------- */
 
 .editor { position: absolute; inset: 0; overflow: hidden; }
+
+.marks {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+#marksInner { position: absolute; top: 0; left: 0; width: 100%; }
+.mark {
+  position: absolute;
+  background: var(--find);
+  border-radius: 2px;
+}
+.mark.cur {
+  background: var(--find-cur);
+  box-shadow: 0 0 0 1px var(--seal);
+}
 
 .editor::before {                 /* the gutter rule */
   content: "";
@@ -351,6 +508,13 @@ body[data-mode="preview"] .pane-preview { flex: 1 1 100%; border-left: 0; }
 .ln {
   position: relative;
   min-height: var(--lh);
+}
+/* Background only — anything affecting metrics would drag the caret out of
+   step with the textarea underneath. */
+.ln.flash { animation: flash 700ms ease-out; }
+@keyframes flash {
+  from { background: var(--sel); }
+  to   { background: transparent; }
 }
 .ln::before {
   content: attr(data-n);
@@ -620,6 +784,15 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
 .slug .dirty { color: var(--mark); }
 .slug .saved { color: var(--moss); }
 .slug .name { color: var(--ink); text-transform: none; letter-spacing: .02em; }
+.slug .caret {
+  font: inherit;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+  height: 100%;
+}
+.slug .caret:hover { color: var(--tint); }
 
 /* ---------- overlays ---------- */
 
@@ -687,6 +860,7 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
 
 /* ---------- narrow screens ---------- */
 
+@media (max-width: 900px) { .find .hint { display: none; } }
 @media (max-width: 760px) { #slugRead { display: none; } }
 @media (max-width: 560px) { #slugCount { display: none; } }
 
@@ -711,7 +885,14 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
   .pane-source, .pane-preview { flex: 1 1 100%; }
   body[data-mode="split"] .pane-preview,
   body[data-mode="split"] .grip { display: none; }
-  body.outline-open .outline { width: 180px; }
+  /* Narrow: overlay the editor instead of squeezing it to nothing. */
+  .side {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    z-index: 20;
+    box-shadow: 8px 0 28px -12px rgba(0, 0, 0, .45);
+  }
+  body.side-open .side { width: min(280px, 78vw); }
   .sheet { padding: 30px 20px 55vh; font-size: 16px; }
   .sheet h1::before, .sheet h2::before, .sheet h3::before,
   .sheet h4::before, .sheet h5::before, .sheet h6::before { display: none; }
@@ -731,7 +912,7 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
 @media print {
   html, body { height: auto; overflow: visible; background: #fff; }
   .work, .pane, .pane-preview { background: #fff; }
-  .chrome, .slug, .find, .grip, .pane-source, .outline, .scrim, .toast { display: none !important; }
+  .chrome, .slug, .find, .grip, .pane-source, .side, .scrim, .toast, .menu { display: none !important; }
   .work { display: block; }
   .pane-preview { overflow: visible; border: 0; display: block !important; flex: none; }
   .sheet {
@@ -750,6 +931,124 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
   .sheet h1::before, .sheet h2::before, .sheet h3::before,
   .sheet h4::before, .sheet h5::before, .sheet h6::before { display: none; }
 }
+
+
+/* ---------- wiki links ---------- */
+
+.m-wiki { color: var(--tint); font-weight: 600; }
+.sheet a.wikilink {
+  color: var(--tint);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--tint);
+  padding-bottom: 1px;
+}
+.sheet a.wikilink::before { content: "\2192\00a0"; opacity: .5; font-size: .85em; }
+.sheet a.wikilink:hover { background: var(--tint-soft); }
+
+/* ---------- quick open palette ---------- */
+
+.scrim.top { align-items: flex-start; padding-top: 12vh; }
+.palette-box {
+  width: 100%;
+  max-width: 620px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  box-shadow: 0 24px 60px -14px rgba(0, 0, 0, .38);
+  overflow: hidden;
+}
+#paletteInput {
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: none;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 14px;
+}
+#paletteInput:focus { outline: none; }
+.palette-list { max-height: 46vh; overflow: auto; padding: 6px 0; }
+.pal-head { padding: 8px 16px 4px; }
+.pal-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+.pal-item.on { background: var(--tint-soft); }
+.pal-label { flex: 0 0 auto; font-size: 13px; color: var(--ink); }
+.pal-item.on .pal-label { color: var(--tint); font-weight: 600; }
+.pal-line {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pal-meta {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.palette-list .empty { padding: 14px 16px; font-size: 12.5px; color: var(--ink-faint); }
+.palette-foot { padding: 8px 16px; border-top: 1px solid var(--rule-soft); }
+
+/* ---------- workspace menu ---------- */
+
+.menu {
+  position: fixed;
+  z-index: 60;
+  display: none;
+  min-width: 232px;
+  padding: 5px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  box-shadow: 0 14px 36px -10px rgba(0, 0, 0, .32);
+}
+.menu.open { display: block; }
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 3px;
+  text-align: left;
+  font-size: 12.5px;
+  color: var(--ink);
+}
+.menu-item:hover { background: var(--sheet-alt); }
+.menu-item.on { color: var(--tint); font-weight: 600; }
+.menu-item.on::after { content: " \2713"; }
+.menu-item.danger { color: var(--mark); }
+.menu-sep { height: 1px; margin: 5px 6px; background: var(--rule-soft); }
+
+/* ---------- prompt dialog ---------- */
+
+.ask-card { max-width: 420px; }
+#askInput {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--sheet-alt);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+#askInput:focus { outline: none; border-color: var(--tint); }
+.ask-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.ask-actions .tool { border: 1px solid var(--rule); height: 30px; padding: 0 16px; }
+.ask-actions .tool.primary { background: var(--tint); color: var(--sheet); border-color: var(--tint); }
 </style>
 </head>
 <body data-mode="split">
@@ -773,6 +1072,11 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
 <g id="i-export"><path d="M8 2.4v7.4M5 6.9l3 3 3-3"/><path d="M2.4 13.4h11.2"/></g>
 <g id="i-print"><path d="M4.6 6.2V2.6h6.8v3.6"/><path d="M4.6 11.4H2.6V7.1h10.8v4.3h-2"/><rect x="4.6" y="9.4" width="6.8" height="4" rx="0.8"/></g>
 <g id="i-theme"><circle cx="8" cy="8" r="5.4"/><path d="M8 2.6a5.4 5.4 0 0 1 0 10.8z" fill="currentColor" stroke="none"/></g>
+<g id="i-chev"><path d="M4.5 6.5 8 10l3.5-3.5"/></g>
+<g id="i-trash"><path d="M3.4 4.6h9.2M6.4 4.6V3.2h3.2v1.4M4.6 4.6l.6 8.2h5.6l.6-8.2"/></g>
+<g id="i-pencil"><path d="m10.3 3.2 2.5 2.5-7 7-3.1.6.6-3.1z"/></g>
+<g id="i-palette"><circle cx="7" cy="7" r="4.1"/><path d="M10 10l3.4 3.4"/><path d="M5.2 7h3.6M7 5.2v3.6"/></g>
+<g id="i-sync"><path d="M2.6 5.2h7.6M7.4 2.6l2.8 2.6-2.8 2.6"/><path d="M13.4 10.8H5.8m2.8 2.6-2.8-2.6 2.8-2.6"/></g>
 <g id="i-close"><path d="M4.4 4.4l7.2 7.2M11.6 4.4l-7.2 7.2"/></g>
 <g id="i-up"><path d="M8 12.6V4M4.6 7.4L8 4l3.4 3.4"/></g>
 <g id="i-down"><path d="M8 3.4V12M4.6 8.6L8 12l3.4-3.4"/></g>
@@ -782,9 +1086,9 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
   <div class="wordmark"><b>foolscap</b> <span>md</span></div>
 
   <div class="tools">
-    <button class="tool" id="btnNew" title="New document" aria-label="New document"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-new"></use></svg></button>
-    <button class="tool" id="btnOpen" title="Open a file (Ctrl+O)" aria-label="Open a file"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-open"></use></svg></button>
-    <button class="tool" id="btnSave" title="Save to disk (Ctrl+S)" aria-label="Save to disk"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-save"></use></svg></button>
+    <button class="tool" id="btnNew" title="New note (Ctrl+Alt+N)" aria-label="New note"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-new"></use></svg></button>
+    <button class="tool" id="btnOpen" title="Import a .md file (Ctrl+O)" aria-label="Import a markdown file"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-open"></use></svg></button>
+    <button class="tool" id="btnSave" title="Export this note to disk (Ctrl+Shift+S)" aria-label="Export note to disk"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-save"></use></svg></button>
   </div>
   <div class="sep"></div>
   <div class="tools">
@@ -814,13 +1118,15 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
   <div class="spacer"></div>
 
   <div class="tools">
+    <button class="tool" id="btnPalette" title="Quick open (Ctrl+P)" aria-label="Quick open"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><use href="#i-palette"></use></svg></button>
     <button class="tool" id="btnFind" title="Find and replace (Ctrl+F)" aria-label="Find and replace"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-find"></use></svg></button>
     <button class="tool on" id="btnGutter" title="Toggle line numbers" aria-label="Toggle line numbers"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-gutter"></use></svg></button>
-    <button class="tool" id="btnOutline" title="Outline (Ctrl+Shift+O)" aria-label="Toggle outline"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-outline"></use></svg></button>
+    <button class="tool" id="btnSide" title="Sidebar (Ctrl+Shift+O)" aria-label="Toggle sidebar"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-outline"></use></svg></button>
     <button class="tool" id="btnCopy" title="Copy HTML (Ctrl+Shift+C)" aria-label="Copy HTML"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-copy"></use></svg></button>
     <button class="tool" id="btnExport" title="Export standalone HTML" aria-label="Export HTML"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-export"></use></svg></button>
     <button class="tool" id="btnPrint" title="Print or save as PDF" aria-label="Print"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-print"></use></svg></button>
-    <button class="tool" id="btnTheme" title="Toggle theme (Ctrl+Shift+L)" aria-label="Toggle theme"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-theme"></use></svg></button>
+    <button class="tool on" id="btnSync" aria-pressed="true" title="Linked scrolling — click to unlink" aria-label="Toggle linked scrolling"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-sync"></use></svg></button>
+  <button class="tool" id="btnTheme" title="Toggle theme (Ctrl+Shift+L)" aria-label="Toggle theme"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-theme"></use></svg></button>
     <button class="tool" id="btnHelp" title="Shortcuts (Ctrl+/)">?</button>
   </div>
   <div class="modes-dock">
@@ -835,6 +1141,11 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
 <div class="find" id="findBar">
   <span class="label">find</span>
   <input id="findInput" type="text" placeholder="text" aria-label="Find" spellcheck="false">
+  <div class="opts">
+    <button class="tool" id="opt-case" aria-pressed="false" title="Match case">Aa</button>
+    <button class="tool" id="opt-word" aria-pressed="false" title="Whole word">W</button>
+    <button class="tool" id="opt-regex" aria-pressed="false" title="Regular expression">.*</button>
+  </div>
   <button class="tool" id="findPrev" title="Previous (Shift+Enter)" aria-label="Previous match"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-up"></use></svg></button>
   <button class="tool" id="findNext" title="Next (Enter)" aria-label="Next match"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-down"></use></svg></button>
   <span class="label">replace</span>
@@ -846,16 +1157,54 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
   <button class="tool" id="findClose" title="Close (Esc)" aria-label="Close find bar"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-close"></use></svg></button>
 </div>
 
+<div class="find" id="jumpBar">
+  <span class="label">go to line</span>
+  <input id="jumpInput" type="text" inputmode="numeric" placeholder="42 or 42:8"
+         aria-label="Line number" spellcheck="false" autocomplete="off">
+  <button class="tool" id="jumpGo">go</button>
+  <span class="label" id="jumpTotal"></span>
+  <span class="label hint">· also +10, -10, or $ for the last line</span>
+  <div class="spacer"></div>
+  <button class="tool" id="jumpClose" title="Close (Esc)" aria-label="Close go to line"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#i-close"></use></svg></button>
+</div>
+
 <main class="work" id="work">
-  <nav class="outline" id="outline" aria-label="Document outline">
-    <div class="outline-inner">
-      <h2 class="label">Outline</h2>
-      <div id="outlineList"></div>
+  <nav class="side" id="side" aria-label="Workspace">
+    <div class="side-head">
+      <button class="ws-pick" id="wsPick" title="Workspaces">
+        <span id="wsName">notes</span>
+        <svg class="ic chev" viewBox="0 0 16 16" aria-hidden="true"><use href="#i-chev"></use></svg>
+      </button>
+      <button class="tool" id="btnNewNote" title="New note (Ctrl+Alt+N)" aria-label="New note">
+        <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><use href="#i-new"></use></svg>
+      </button>
     </div>
+    <div class="tabs" role="tablist">
+      <button class="tab on" id="tab-files" role="tab" aria-selected="true">files</button>
+      <button class="tab" id="tab-outline" role="tab" aria-selected="false">outline</button>
+      <button class="tab" id="tab-links" role="tab" aria-selected="false">links</button>
+    </div>
+    <div class="side-body">
+      <div class="panel on" id="panel-files">
+        <input id="fileFilter" type="text" placeholder="filter notes" aria-label="Filter notes" spellcheck="false" autocomplete="off">
+        <div id="fileList" class="rows"></div>
+      </div>
+      <div class="panel" id="panel-outline">
+        <div id="outlineList"></div>
+      </div>
+      <div class="panel" id="panel-links">
+        <h3 class="label">links out</h3>
+        <div id="linksOut" class="rows"></div>
+        <h3 class="label">backlinks</h3>
+        <div id="linksIn" class="rows"></div>
+      </div>
+    </div>
+    <button class="side-foot label" id="wsUsage" title="Workspace storage"></button>
   </nav>
 
   <section class="pane pane-source" id="paneSource">
     <div class="editor" id="editor">
+      <div class="marks" id="marks" aria-hidden="true"><div id="marksInner"></div></div>
       <div class="mirror" id="mirror" aria-hidden="true"></div>
       <textarea class="input" id="input" spellcheck="true" autocomplete="off"
         autocapitalize="off" autocorrect="off" aria-label="Markdown source"></textarea>
@@ -870,7 +1219,9 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
 </main>
 
 <footer class="slug">
-  <span class="item label name" id="slugName">untitled.md</span>
+  <span class="item label name" id="slugName">untitled</span>
+  <span class="item label" id="slugStore"></span>
+  <button class="item label caret" id="slugCaret" title="Go to line (Ctrl+G)">Ln 1 · Col 1</button>
   <span class="item label" id="slugCount"></span>
   <span class="item label" id="slugRead"></span>
   <span class="item label" id="slugState"></span>
@@ -880,10 +1231,13 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
   <div class="card">
     <h2 class="label">Keyboard</h2>
     <div class="keys">
-      <kbd>Ctrl S</kbd><span>Save · <kbd>Ctrl Shift S</kbd> save as</span>
-      <kbd>Ctrl O</kbd><span>Open a file — or drop one on the window</span>
-      <kbd>Ctrl P</kbd><span>Cycle source / split / preview</span>
-      <kbd>Ctrl F</kbd><span>Find and replace</span>
+      <kbd>Ctrl S</kbd><span>Save now (notes autosave anyway) · <kbd>Ctrl Shift S</kbd> export .md</span>
+      <kbd>Ctrl O</kbd><span>Import a .md file — or drop one on the window</span>
+      <kbd>Ctrl P</kbd><span>Quick open — notes, or <kbd>&gt;</kbd> for commands</span>
+      <kbd>Ctrl \\</kbd><span>Cycle source / split / preview</span>
+      <kbd>Ctrl Alt N</kbd><span>New note · <kbd>Ctrl Shift O</kbd> sidebar</span>
+      <kbd>Ctrl F</kbd><span>Find and replace · <kbd>Aa</kbd> <kbd>W</kbd> <kbd>.*</kbd> toggle case, whole word, regex</span>
+      <kbd>Ctrl G</kbd><span>Go to line — takes <kbd>42</kbd>, <kbd>42:8</kbd>, <kbd>+10</kbd> or <kbd>$</kbd></span>
       <kbd>Ctrl B</kbd><span>Bold</span>
       <kbd>Ctrl I</kbd><span>Italic</span>
       <kbd>Ctrl E</kbd><span>Inline code</span>
@@ -893,24 +1247,52 @@ body[data-mode="preview"] .sheet { padding-top: 60px; }
       <kbd>Ctrl Shift .</kbd><span>Blockquote</span>
       <kbd>Ctrl Shift X</kbd><span>Strikethrough</span>
       <kbd>Ctrl Shift C</kbd><span>Copy rendered HTML</span>
-      <kbd>Ctrl Shift O</kbd><span>Outline panel</span>
+      
       <kbd>Ctrl Shift L</kbd><span>Light / dark</span>
       <kbd>Ctrl /</kbd><span>This card</span>
       <kbd>Tab</kbd><span>Indent · <kbd>Shift Tab</kbd> outdent</span>
       <kbd>Esc then Tab</kbd><span>Move focus out of the editor</span>
+      <kbd>Alt ↑ ↓</kbd><span>Move the line or selection</span>
+      <kbd>Ctrl D</kbd><span>Duplicate the line or selection</span>
       <kbd>Enter</kbd><span>Continues lists and quotes; twice to leave one</span>
       <kbd>* _ ` ( [ "</kbd><span>Wraps the selection</span>
     </div>
     <p class="note">
-      Everything runs in this one file. Nothing is uploaded, nothing is stored —
-      unsaved text lives only in the tab, so save before you close it.
+      Everything runs in this one file and nothing is uploaded. Notes live in
+      this browser's local storage for this site, so they survive a reload but
+      not a cleared cache — export a workspace now and then.
+      Type <kbd>[[note name]]</kbd> to link notes together.
     </p>
     <div class="close"><button class="tool" id="helpClose">Close</button></div>
   </div>
 </div>
 
+<div class="scrim top" id="palette" role="dialog" aria-modal="true" aria-label="Quick open">
+  <div class="palette-box">
+    <input id="paletteInput" type="text" spellcheck="false" autocomplete="off"
+           placeholder="note name · &gt; commands · leave blank for recent" aria-label="Quick open">
+    <div id="paletteList" class="palette-list" role="listbox"></div>
+    <div class="palette-foot label">↑↓ move · ↵ open · ⇧↵ create note · esc close</div>
+  </div>
+</div>
+
+<div class="menu" id="wsMenu" role="menu"></div>
+
+<div class="scrim" id="ask" role="dialog" aria-modal="true">
+  <div class="card ask-card">
+    <h2 class="label" id="askTitle">Name</h2>
+    <input id="askInput" type="text" spellcheck="false" autocomplete="off">
+    <p class="note" id="askNote" hidden></p>
+    <div class="ask-actions">
+      <button class="tool" id="askCancel">Cancel</button>
+      <button class="tool primary" id="askOk">OK</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<input type="file" id="picker" accept=".md,.markdown,.txt,.mdx,text/markdown,text/plain" style="display:none">
+<input type="file" id="wsPicker" accept=".json,.md,.markdown,.txt,application/json,text/markdown" multiple style="display:none">
+<input type="file" id="picker" accept=".md,.markdown,.txt,.mdx,.json,text/markdown,text/plain,application/json" multiple style="display:none">
 
 <script>/* ============================================================
    foolscap markdown engine
@@ -1109,6 +1491,35 @@ var MD = (function () {
         }
       }
 
+      if (ch === '[' && src[i + 1] === '[') {
+        var wm = /^\[\[([^\]|\n]+?)(?:\|([^\]\n]*?))?\]\]/.exec(src.slice(i));
+        if (wm && wm[1].trim()) {
+          var wTarget = wm[1].trim();
+          var wLabel = (wm[2] != null && wm[2].trim()) ? wm[2].trim() : wTarget;
+          flush();
+          out += '<a class="wikilink" href="#" data-note="' + esc(wTarget) + '">' + esc(wLabel) + '</a>';
+          i += wm[0].length; continue;
+        }
+      }
+
+      if (ch === '[' && src[i + 1] === '[') {
+        var wclose = src.indexOf(']]', i + 2);
+        if (wclose !== -1) {
+          var winner = src.slice(i + 2, wclose);
+          if (winner.indexOf('[') === -1 && winner.indexOf('\n') === -1) {
+            var wbar = winner.indexOf('|');
+            var wtarget = (wbar === -1 ? winner : winner.slice(0, wbar)).trim();
+            var wlabel = (wbar === -1 ? winner : winner.slice(wbar + 1)).trim();
+            if (wtarget) {
+              flush();
+              out += '<a class="wikilink" href="#" data-note="' + esc(wtarget) + '">' +
+                esc(wlabel || wtarget) + '</a>';
+              i = wclose + 2; continue;
+            }
+          }
+        }
+      }
+
       if (ch === '[') {
         // task-list checkboxes are handled at block level; skip bare [ ] here
         var lm = matchLink(src, i);
@@ -1221,11 +1632,23 @@ var MD = (function () {
     return cells.map(function (c) { return c.trim(); });
   }
 
-  function parseBlocks(lines, ctx) {
-    var out = [], i = 0;
+  // `annotate` is only passed at the top level. Each block it emits gets a
+  // data-line attribute naming the source line it began on, which is what
+  // lets the two panes scroll in step instead of by crude proportion.
+  function parseBlocks(lines, ctx, annotate) {
+    var out = [], i = 0, curLine = 0;
+
+    function push(h) {
+      if (annotate) {
+        h = h.replace(/^<([a-zA-Z][\w-]*)/,
+          '<$1 data-line="' + (curLine + (ctx.lineOffset || 0)) + '"');
+      }
+      out.push(h);
+    }
 
     while (i < lines.length) {
       var line = lines[i];
+      curLine = i;
 
       if (RE_BLANK.test(line)) { i++; continue; }
 
@@ -1243,7 +1666,7 @@ var MD = (function () {
           i++;
         }
         var label = info ? '<span class="code-lang">' + esc(info) + '</span>' : '';
-        out.push('<div class="code-block">' + label + '<pre><code' +
+        push('<div class="code-block">' + label + '<pre><code' +
           (info ? ' class="language-' + esc(info.toLowerCase()) + '"' : '') + '>' +
           highlightCode(body.join('\n'), info) + '</code></pre></div>');
         continue;
@@ -1262,7 +1685,7 @@ var MD = (function () {
           }
           ib.push(lines[i].slice(4)); i++;
         }
-        out.push('<div class="code-block"><pre><code>' + highlightCode(ib.join('\n'), '') + '</code></pre></div>');
+        push('<div class="code-block"><pre><code>' + highlightCode(ib.join('\n'), '') + '</code></pre></div>');
         continue;
       }
 
@@ -1272,12 +1695,12 @@ var MD = (function () {
         var lvl = hm[1].length, txt = (hm[2] || '').trim();
         var id = slug(txt);
         ctx.toc.push({ level: lvl, text: txt, id: id });
-        out.push('<h' + lvl + ' id="' + esc(id) + '" data-marks="' + hm[1] + '">' + inline(txt) + '</h' + lvl + '>');
+        push('<h' + lvl + ' id="' + esc(id) + '" data-marks="' + hm[1] + '">' + inline(txt) + '</h' + lvl + '>');
         i++; continue;
       }
 
       /* thematic break */
-      if (RE_HR.test(line)) { out.push('<hr>'); i++; continue; }
+      if (RE_HR.test(line)) { push('<hr>'); i++; continue; }
 
       /* blockquote */
       if (RE_QUOTE.test(line)) {
@@ -1290,7 +1713,7 @@ var MD = (function () {
             qb.push(lines[i]); i++;            // lazy continuation
           } else break;
         }
-        out.push('<blockquote>' + parseBlocks(qb, ctx) + '</blockquote>');
+        push('<blockquote>' + parseBlocks(qb, ctx) + '</blockquote>');
         continue;
       }
 
@@ -1298,7 +1721,7 @@ var MD = (function () {
       var bm = RE_BULLET.exec(line), om = RE_ORDERED.exec(line);
       if (bm || om) {
         var listRes = parseList(lines, i, ctx);
-        out.push(listRes.html);
+        push(listRes.html);
         i = listRes.next;
         continue;
       }
@@ -1326,7 +1749,7 @@ var MD = (function () {
           }
           return '<tr>' + tds + '</tr>';
         }).join('');
-        out.push('<div class="table-wrap"><table><thead><tr>' + th + '</tr></thead><tbody>' + tb + '</tbody></table></div>');
+        push('<div class="table-wrap"><table><thead><tr>' + th + '</tr></thead><tbody>' + tb + '</tbody></table></div>');
         continue;
       }
 
@@ -1348,9 +1771,9 @@ var MD = (function () {
         var slvl = setext === '=' ? 1 : 2;
         var sid = slug(ptext);
         ctx.toc.push({ level: slvl, text: ptext, id: sid });
-        out.push('<h' + slvl + ' id="' + esc(sid) + '" data-marks="' + (slvl === 1 ? '#' : '##') + '">' + inline(ptext) + '</h' + slvl + '>');
+        push('<h' + slvl + ' id="' + esc(sid) + '" data-marks="' + (slvl === 1 ? '#' : '##') + '">' + inline(ptext) + '</h' + slvl + '>');
       } else if (ptext) {
-        out.push('<p>' + inline(ptext) + '</p>');
+        push('<p>' + inline(ptext) + '</p>');
       }
     }
 
@@ -1464,14 +1887,14 @@ var MD = (function () {
     return null;
   }
 
-  function render(src) {
+  function render(src, opts) {
     var text = String(src == null ? '' : src).replace(/\r\n?/g, '\n');
     var lines = text.split('\n').map(expandTabs);
-    var ctx = { toc: [] };
+    var ctx = { toc: [], lineOffset: 0 };
     var prefix = '';
     var fm = takeFrontMatter(lines);
-    if (fm) { prefix = fm.html; lines = lines.slice(fm.next); }
-    var html = parseBlocks(lines, ctx);
+    if (fm) { prefix = fm.html; lines = lines.slice(fm.next); ctx.lineOffset = fm.next; }
+    var html = parseBlocks(lines, ctx, !!(opts && opts.anchors));
     return { html: prefix + html, toc: ctx.toc };
   }
 
@@ -1497,6 +1920,28 @@ var MD = (function () {
         if (close !== -1) {
           flush(); out += tag('m-code', s.slice(i, close + fence.length));
           i = close + fence.length; continue;
+        }
+      }
+
+      if (ch === '[' && s[i + 1] === '[') {
+        var hw = /^\[\[([^\]|\n]+?)(?:\|([^\]\n]*?))?\]\]/.exec(s.slice(i));
+        if (hw && hw[1].trim()) {
+          flush();
+          out += tag('m-punct', '[[') + tag('m-wiki', hw[1]) +
+            (hw[2] != null ? tag('m-punct', '|') + tag('m-linktext', hw[2]) : '') +
+            tag('m-punct', ']]');
+          i += hw[0].length; continue;
+        }
+      }
+
+      if (ch === '[' && s[i + 1] === '[') {
+        var wc = s.indexOf(']]', i + 2);
+        if (wc !== -1 && s.slice(i + 2, wc).indexOf('[') === -1) {
+          flush();
+          out += tag('m-punct', '[[') +
+            '<span class="m-wiki">' + esc(s.slice(i + 2, wc)) + '</span>' +
+            tag('m-punct', ']]');
+          i = wc + 2; continue;
         }
       }
 
@@ -1659,6 +2104,25 @@ var MD = (function () {
 
   /* ---------- document stats ---------- */
 
+  // Backlink scanning. Code fences and code spans are stripped first so a
+  // literal [[example]] inside a snippet does not manufacture a link.
+  function extractLinks(src) {
+    var text = String(src == null ? '' : src)
+      .replace(/^([ \t]*)(```|~~~)[\s\S]*?^\1?\2[ \t]*$/gm, '')
+      .replace(/`[^`\n]*`/g, '');
+    var out = [], seen = Object.create(null), m;
+    var re = /\[\[([^\[\]\n|]+)(?:\|[^\[\]\n]*)?\]\]/g;
+    while ((m = re.exec(text)) !== null) {
+      var t = m[1].trim();
+      if (!t) continue;
+      var key = t.toLowerCase();
+      if (seen[key]) continue;
+      seen[key] = 1;
+      out.push(t);
+    }
+    return out;
+  }
+
   function stats(src) {
     var text = String(src == null ? '' : src);
     var words = (text.match(/[A-Za-z0-9\u00C0-\u024F\u0370-\u03FF\u0400-\u04FF'’-]+/g) || []).length;
@@ -1676,9 +2140,581 @@ var MD = (function () {
     highlightLine: highlightLine,
     highlightCode: highlightCode,
     stats: stats,
+    extractLinks: extractLinks,
     esc: esc,
     safeUrl: safeUrl,
-    inline: inline
+    inline: inline,
+    wikiLinks: function (text) {
+      var re = /\[\[([^\]|\n]+?)(?:\|[^\]\n]*?)?\]\]/g, out = [], m;
+      while ((m = re.exec(String(text || ''))) !== null) {
+        var t = m[1].trim();
+        if (t) out.push(t);
+      }
+      return out;
+    }
+  };
+  return api;
+})();
+</script>
+<script>/* ============================================================
+   foolscap store
+   Workspaces and notes over a key/value backend.
+
+   Keys
+     fs1.meta                  { workspaces:[{id,name,created}], active:{ws,note} }
+     fs1.i.<ws>                [ {id,name,updated,size} ]        index, for listing
+     fs1.n.<ws>.<id>           { name, text, updated, caret, scroll }
+
+   The index exists so listing does not have to parse every note. It is a
+   cache, never the source of truth: reconcile() rebuilds it from the actual
+   note keys, so a write interrupted halfway can never lose a note.
+   ============================================================ */
+var Store = (function () {
+  'use strict';
+
+  var P = 'fs1.';
+  var META = P + 'meta';
+  var back = null;
+  var mode = 'memory';
+
+  /* ---------- backend ---------- */
+
+  function memoryBackend() {
+    var m = Object.create(null);
+    return {
+      getItem: function (k) { return k in m ? m[k] : null; },
+      setItem: function (k, v) { m[k] = String(v); },
+      removeItem: function (k) { delete m[k]; },
+      keys: function () { return Object.keys(m); }
+    };
+  }
+
+  function wrap(ls) {
+    return {
+      getItem: function (k) { return ls.getItem(k); },
+      setItem: function (k, v) { ls.setItem(k, v); },
+      removeItem: function (k) { ls.removeItem(k); },
+      keys: function () {
+        var out = [];
+        for (var i = 0; i < ls.length; i++) out.push(ls.key(i));
+        return out;
+      }
+    };
+  }
+
+  // Returns 'local' when the given storage really persists, 'memory' otherwise.
+  // Safari private mode and locked-down machines expose localStorage but throw
+  // on write, so probing is the only reliable test.
+  function attach(ls) {
+    if (ls) {
+      try {
+        var probe = P + 'probe';
+        ls.setItem(probe, '1');
+        if (ls.getItem(probe) !== '1') throw new Error('readback failed');
+        ls.removeItem(probe);
+        back = wrap(ls);
+        mode = 'local';
+        return mode;
+      } catch (e) { /* fall through */ }
+    }
+    back = memoryBackend();
+    mode = 'memory';
+    return mode;
+  }
+
+  function backend() { return mode; }
+
+  /* ---------- primitives ---------- */
+
+  // Nothing may touch the backend before attach(); default to memory rather
+  // than throwing, so a mis-ordered boot degrades instead of blanking the app.
+  function ensure() { if (!back) attach(null); return back; }
+
+  function readJson(key, fallback) {
+    ensure();
+    try {
+      var raw = back.getItem(key);
+      if (raw == null) return fallback;
+      var v = JSON.parse(raw);
+      return v == null ? fallback : v;
+    } catch (e) { return fallback; }
+  }
+
+  // Throws { quota: true } so callers can surface something actionable
+  // instead of silently dropping the user's text.
+  function writeJson(key, value) {
+    ensure();
+    try {
+      back.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      var quota = e && (e.name === 'QuotaExceededError' ||
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22 || e.code === 1014);
+      var err = new Error(quota ? 'storage is full' : 'could not write to storage');
+      err.quota = !!quota;
+      throw err;
+    }
+  }
+
+  function uid(prefix) {
+    return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  // Strictly increasing. Two notes saved in the same millisecond would
+  // otherwise tie and the "recent" ordering would depend on sort stability.
+  var lastNow = 0;
+  function now() {
+    var t = Date.now();
+    if (t <= lastNow) t = lastNow + 1;
+    lastNow = t;
+    return t;
+  }
+
+  /* ---------- meta ---------- */
+
+  function meta() {
+    var m = readJson(META, null);
+    if (!m || !Array.isArray(m.workspaces)) m = { workspaces: [], active: { ws: null, note: null } };
+    if (!m.active) m.active = { ws: null, note: null };
+    return m;
+  }
+
+  function saveMeta(m) { writeJson(META, m); }
+
+  /* ---------- workspaces ---------- */
+
+  function listWorkspaces() {
+    return meta().workspaces.slice();
+  }
+
+  function getWorkspace(id) {
+    var ws = meta().workspaces;
+    for (var i = 0; i < ws.length; i++) if (ws[i].id === id) return ws[i];
+    return null;
+  }
+
+  function createWorkspace(name) {
+    var m = meta();
+    var ws = { id: uid('w'), name: String(name || 'workspace').trim() || 'workspace', created: now() };
+    m.workspaces.push(ws);
+    saveMeta(m);
+    writeJson(P + 'i.' + ws.id, []);
+    return ws;
+  }
+
+  function renameWorkspace(id, name) {
+    var m = meta();
+    for (var i = 0; i < m.workspaces.length; i++) {
+      if (m.workspaces[i].id === id) {
+        m.workspaces[i].name = String(name).trim() || m.workspaces[i].name;
+        saveMeta(m);
+        return m.workspaces[i];
+      }
+    }
+    return null;
+  }
+
+  function deleteWorkspace(id) {
+    ensure();
+    var m = meta();
+    m.workspaces = m.workspaces.filter(function (w) { return w.id !== id; });
+    if (m.active.ws === id) m.active = { ws: m.workspaces[0] ? m.workspaces[0].id : null, note: null };
+    saveMeta(m);
+    var pre = P + 'n.' + id + '.';
+    back.keys().forEach(function (k) {
+      if (k.indexOf(pre) === 0) back.removeItem(k);
+    });
+    back.removeItem(P + 'i.' + id);
+    return true;
+  }
+
+  /* ---------- notes ---------- */
+
+  function noteKey(wsId, id) { return P + 'n.' + wsId + '.' + id; }
+  function indexKey(wsId) { return P + 'i.' + wsId; }
+
+  function listNotes(wsId, sortBy) {
+    var idx = readJson(indexKey(wsId), []);
+    if (!Array.isArray(idx)) return [];
+    idx = idx.slice();
+    if (sortBy === 'name') {
+      idx.sort(function (a, b) {
+        return String(a.name).localeCompare(String(b.name), undefined, { numeric: true, sensitivity: 'base' });
+      });
+    } else {
+      idx.sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
+    }
+    return idx;
+  }
+
+  function putIndex(wsId, idx) {
+    idx.sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
+    writeJson(indexKey(wsId), idx);
+  }
+
+  function touchIndex(wsId, note) {
+    var idx = listNotes(wsId);
+    var entry = { id: note.id, name: note.name, updated: note.updated, size: note.text.length };
+    var found = false;
+    for (var i = 0; i < idx.length; i++) {
+      if (idx[i].id === note.id) { idx[i] = entry; found = true; break; }
+    }
+    if (!found) idx.push(entry);
+    putIndex(wsId, idx);
+  }
+
+  function readNote(wsId, id) {
+    var n = readJson(noteKey(wsId, id), null);
+    if (!n) return null;
+    return {
+      id: id,
+      name: n.name || 'untitled',
+      text: typeof n.text === 'string' ? n.text : '',
+      updated: n.updated || 0,
+      caret: n.caret || 0,
+      scroll: n.scroll || 0
+    };
+  }
+
+  // Note first, index second. If this is interrupted the note still exists and
+  // reconcile() will find it; the reverse order would list a note that is gone.
+  function writeNote(wsId, note) {
+    var rec = {
+      name: note.name,
+      text: note.text,
+      updated: note.updated || now(),
+      caret: note.caret || 0,
+      scroll: note.scroll || 0
+    };
+    writeJson(noteKey(wsId, note.id), rec);
+    touchIndex(wsId, { id: note.id, name: rec.name, text: rec.text, updated: rec.updated });
+    return { id: note.id, name: rec.name, text: rec.text, updated: rec.updated, caret: rec.caret, scroll: rec.scroll };
+  }
+
+  function uniqueName(wsId, name, exceptId) {
+    var base = String(name || 'untitled').trim() || 'untitled';
+    var taken = Object.create(null);
+    listNotes(wsId).forEach(function (n) {
+      if (n.id !== exceptId) taken[n.name.toLowerCase()] = 1;
+    });
+    if (!taken[base.toLowerCase()]) return base;
+    var i = 2;
+    while (taken[(base + ' ' + i).toLowerCase()]) i++;
+    return base + ' ' + i;
+  }
+
+  function createNote(wsId, name, text) {
+    var note = {
+      id: uid('n'),
+      name: uniqueName(wsId, name),
+      text: text == null ? '' : String(text),
+      updated: now(),
+      caret: 0,
+      scroll: 0
+    };
+    return writeNote(wsId, note);
+  }
+
+  function renameNote(wsId, id, name) {
+    var n = readNote(wsId, id);
+    if (!n) return null;
+    n.name = uniqueName(wsId, name, id);
+    n.updated = now();
+    return writeNote(wsId, n);
+  }
+
+  function deleteNote(wsId, id) {
+    ensure();
+    back.removeItem(noteKey(wsId, id));
+    putIndex(wsId, listNotes(wsId).filter(function (n) { return n.id !== id; }));
+    return true;
+  }
+
+  function duplicateNote(wsId, id) {
+    var n = readNote(wsId, id);
+    if (!n) return null;
+    return createNote(wsId, n.name + ' copy', n.text);
+  }
+
+  function findNoteByName(wsId, name) {
+    var target = String(name || '').trim().toLowerCase();
+    var idx = listNotes(wsId);
+    for (var i = 0; i < idx.length; i++) {
+      if (idx[i].name.toLowerCase() === target) return idx[i];
+    }
+    return null;
+  }
+
+  /* ---------- integrity ---------- */
+
+  // Rebuild the index from the real note keys. Adds notes the index lost and
+  // drops entries whose note is gone. Returns what it changed.
+  function reconcile(wsId) {
+    ensure();
+    var pre = P + 'n.' + wsId + '.';
+    var present = Object.create(null);
+    back.keys().forEach(function (k) {
+      if (k.indexOf(pre) === 0) present[k.slice(pre.length)] = 1;
+    });
+    var idx = listNotes(wsId);
+    var kept = [], seen = Object.create(null), dropped = 0;
+    idx.forEach(function (e) {
+      if (present[e.id] && !seen[e.id]) { kept.push(e); seen[e.id] = 1; }
+      else dropped++;
+    });
+    var added = 0;
+    Object.keys(present).forEach(function (id) {
+      if (seen[id]) return;
+      var n = readNote(wsId, id);
+      if (!n) return;
+      kept.push({ id: id, name: n.name, updated: n.updated, size: n.text.length });
+      added++;
+    });
+    if (added || dropped) putIndex(wsId, kept);
+    return { added: added, dropped: dropped, total: kept.length };
+  }
+
+  /* ---------- active selection ---------- */
+
+  function getActive() { return meta().active; }
+
+  /* ---------- preferences ---------- */
+
+  function getPref(key, fallback) {
+    var m = meta();
+    return (m.prefs && m.prefs[key] !== undefined) ? m.prefs[key] : fallback;
+  }
+
+  function setPref(key, value) {
+    var m = meta();
+    if (!m.prefs) m.prefs = {};
+    m.prefs[key] = value;
+    try { saveMeta(m); } catch (e) { /* a preference is never worth an error */ }
+    return value;
+  }
+
+  function lastExport() { return meta().lastExport || 0; }
+
+  function markExported() {
+    var m = meta();
+    m.lastExport = now();
+    saveMeta(m);
+  }
+
+  function setActive(wsId, noteId) {
+    var m = meta();
+    m.active = { ws: wsId || null, note: noteId || null };
+    saveMeta(m);
+  }
+
+  /* ---------- search ---------- */
+
+  function searchNotes(wsId, query, limit) {
+    var q = String(query || '').toLowerCase();
+    if (!q) return [];
+    var out = [];
+    var idx = listNotes(wsId);
+    for (var i = 0; i < idx.length && out.length < (limit || 40); i++) {
+      var n = readNote(wsId, idx[i].id);
+      if (!n) continue;
+      var at = n.text.toLowerCase().indexOf(q);
+      if (at === -1) continue;
+      var lineStart = n.text.lastIndexOf('\n', at) + 1;
+      var lineEnd = n.text.indexOf('\n', at);
+      if (lineEnd === -1) lineEnd = n.text.length;
+      var line = n.text.slice(lineStart, lineEnd).trim();
+      var count = 0, from = 0, hit;
+      var low = n.text.toLowerCase();
+      while ((hit = low.indexOf(q, from)) !== -1) { count++; from = hit + q.length; if (count > 99) break; }
+      out.push({
+        id: n.id, name: n.name,
+        line: line.length > 120 ? line.slice(0, 117) + '\u2026' : line,
+        count: count
+      });
+    }
+    return out;
+  }
+
+  // [[Target]] and [[Target|label]] -> map of lowercased target -> [noteId]
+  var LINK_RE = /\[\[([^\]|\n]+?)(?:\|[^\]\n]*?)?\]\]/g;
+
+  function linksIn(text) {
+    var out = [], m;
+    LINK_RE.lastIndex = 0;
+    while ((m = LINK_RE.exec(text)) !== null) {
+      var t = m[1].trim();
+      if (t) out.push(t);
+    }
+    return out;
+  }
+
+  function backlinks(wsId, noteName) {
+    var target = String(noteName || '').trim().toLowerCase();
+    if (!target) return [];
+    var out = [];
+    listNotes(wsId).forEach(function (e) {
+      var n = readNote(wsId, e.id);
+      if (!n || n.name.toLowerCase() === target) return;
+      var links = linksIn(n.text);
+      for (var i = 0; i < links.length; i++) {
+        if (links[i].toLowerCase() === target) { out.push({ id: n.id, name: n.name }); return; }
+      }
+    });
+    return out;
+  }
+
+  /* ---------- import / export ---------- */
+
+  function exportWorkspace(wsId) {
+    var ws = getWorkspace(wsId);
+    var notes = listNotes(wsId).map(function (e) {
+      var n = readNote(wsId, e.id);
+      return n ? { name: n.name, text: n.text, updated: n.updated } : null;
+    }).filter(Boolean);
+    return {
+      format: 'foolscap-workspace',
+      version: 1,
+      exported: now(),
+      name: ws ? ws.name : 'workspace',
+      notes: notes
+    };
+  }
+
+  function importWorkspace(bundle, nameOverride) {
+    if (!bundle || bundle.format !== 'foolscap-workspace' || !Array.isArray(bundle.notes)) {
+      throw new Error('not a foolscap workspace file');
+    }
+    var ws = createWorkspace(nameOverride || bundle.name || 'imported');
+    bundle.notes.forEach(function (n) {
+      if (!n || typeof n.text !== 'string') return;
+      var made = createNote(ws.id, n.name || 'untitled', n.text);
+      if (n.updated) writeNote(ws.id, { id: made.id, name: made.name, text: made.text, updated: n.updated });
+    });
+    return ws;
+  }
+
+  /* ---------- usage ---------- */
+
+  function usage() {
+    ensure();
+    var bytes = 0, notes = 0;
+    back.keys().forEach(function (k) {
+      if (k.indexOf(P) !== 0) return;
+      var v = back.getItem(k);
+      bytes += k.length + (v ? v.length : 0);
+      if (k.indexOf(P + 'n.') === 0) notes++;
+    });
+    return { bytes: bytes * 2, notes: notes };   // UTF-16 code units on disk
+  }
+
+  function wipe() {
+    ensure();
+    back.keys().forEach(function (k) { if (k.indexOf(P) === 0) back.removeItem(k); });
+  }
+
+
+  /* ---------- store-only ZIP ----------
+     No compression, so no dependency: local headers, payloads, a central
+     directory, an EOCD record. This is the escape hatch that keeps the notes
+     from being hostage to this app or to localStorage -- a workspace comes
+     back out as ordinary .md files that git, Obsidian or bangle can read. */
+
+  var CRC = (function () {
+    var t = new Int32Array(256);
+    for (var n = 0; n < 256; n++) {
+      var c = n;
+      for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c;
+    }
+    return t;
+  })();
+
+  function crc32(bytes) {
+    var c = -1;
+    for (var i = 0; i < bytes.length; i++) c = CRC[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ -1) >>> 0;
+  }
+
+  function utf8(str) {
+    if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(str);
+    var s = unescape(encodeURIComponent(str)), out = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  }
+
+  function u16(v) { return [v & 0xFF, (v >>> 8) & 0xFF]; }
+  function u32(v) { return [v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF]; }
+
+  // files: [{ name, text, date }] -> Uint8Array
+  function zip(files) {
+    var parts = [], central = [], offset = 0, i;
+
+    for (i = 0; i < files.length; i++) {
+      var f = files[i];
+      var nameB = utf8(f.name);
+      var data = utf8(f.text == null ? '' : String(f.text));
+      var sum = crc32(data);
+      var d = f.date instanceof Date ? f.date : new Date();
+      var time = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xFFFF;
+      var date = ((((d.getFullYear() - 1980) & 0x7F) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF;
+
+      // bit 11 of the flags marks the filename as UTF-8
+      var local = new Uint8Array([].concat(
+        u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(time), u16(date),
+        u32(sum), u32(data.length), u32(data.length), u16(nameB.length), u16(0)));
+      parts.push(local, nameB, data);
+
+      central.push(new Uint8Array([].concat(
+        u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(time), u16(date),
+        u32(sum), u32(data.length), u32(data.length),
+        u16(nameB.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(offset))));
+      central.push(nameB);
+      offset += local.length + nameB.length + data.length;
+    }
+
+    var centralSize = 0;
+    for (i = 0; i < central.length; i++) centralSize += central[i].length;
+
+    var eocd = new Uint8Array([].concat(
+      u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length),
+      u32(centralSize), u32(offset), u16(0)));
+
+    var all = parts.concat(central, [eocd]);
+    var total = 0;
+    for (i = 0; i < all.length; i++) total += all[i].length;
+    var buf = new Uint8Array(total), at = 0;
+    for (i = 0; i < all.length; i++) { buf.set(all[i], at); at += all[i].length; }
+    return buf;
+  }
+
+  // Every note in a workspace as a .md file, names deduplicated for the filesystem.
+  function zipWorkspace(wsId) {
+    var used = Object.create(null);
+    return zip(listNotes(wsId).map(function (e) {
+      var n = readNote(wsId, e.id);
+      if (!n) return null;
+      var base = String(n.name).replace(/[\/\\:*?"<>|\u0000-\u001f]/g, '-').replace(/^\.+/, '').trim() || 'untitled';
+      var name = base, k = 2;
+      while (used[name.toLowerCase()]) name = base + ' ' + (k++);
+      used[name.toLowerCase()] = 1;
+      return { name: name + '.md', text: n.text, date: new Date(n.updated || Date.now()) };
+    }).filter(Boolean));
+  }
+
+  var api = {
+    attach: attach, backend: backend, prefix: P,
+    listWorkspaces: listWorkspaces, getWorkspace: getWorkspace,
+    createWorkspace: createWorkspace, renameWorkspace: renameWorkspace, deleteWorkspace: deleteWorkspace,
+    listNotes: listNotes, readNote: readNote, writeNote: writeNote,
+    createNote: createNote, renameNote: renameNote, deleteNote: deleteNote, duplicateNote: duplicateNote,
+    findNoteByName: findNoteByName, uniqueName: uniqueName,
+    reconcile: reconcile, getActive: getActive, setActive: setActive,
+    getPref: getPref, setPref: setPref,
+    lastExport: lastExport, markExported: markExported,
+    searchNotes: searchNotes, backlinks: backlinks, linksIn: linksIn,
+    exportWorkspace: exportWorkspace, importWorkspace: importWorkspace,
+    usage: usage, wipe: wipe,
+    zip: zip, zipWorkspace: zipWorkspace, crc32: crc32
   };
   return api;
 })();
@@ -1693,27 +2729,42 @@ var MD = (function () {
   var ta, mirror, sheet, editorEl, previewEl;
   var states = [];
   var savedText = '';
-  var fileHandle = null;
-  var fileName = 'untitled.md';
   var paintQueued = false;
   var renderTimer = null;
   var syncLock = 0;
   var tabEscapes = false;
   var previewStale = false;
+  var syncScroll = true;
+  var paintForce = false;
+  var caretRaf = 0;
+  var lineStartCache = null;
+  var findTimer = null;
 
   var SAMPLE = [
-    '# foolscap',
+    '# welcome',
     '',
-    'A single HTML file that writes markdown. Nothing loads from the network,',
-    'nothing is stored anywhere but the file you save.',
+    'Your notes live in this browser\'s local storage for this site. They survive',
+    'a reload and a reboot, but not a cleared cache — so export a workspace now',
+    'and then from the menu at the top left.',
     '',
-    '## What works',
+    '## Getting around',
+    '',
+    '- `Ctrl+P` opens anything: type a note name, or `>` for commands',
+    '- `Ctrl+G` jumps to a line, `Ctrl+F` finds and replaces',
+    '- `Ctrl+\\\\` cycles source / split / preview',
+    '- See [[shortcuts]] for the rest — that is a wiki link, click it',
+    '',
+    '## Linking notes',
+    '',
+    'Type `[[note name]]` anywhere to link to another note. If it does not exist',
+    'yet, following the link offers to create it. The **links** tab in the sidebar',
+    'shows what this note points at and what points back.',
+    '',
+    '## It still writes markdown',
     '',
     '- **Bold**, *italic*, `code`, ~~struck~~, ==highlighted==, [links](https://example.com)',
-    '- Lists, nested lists, and tasks:',
-    '  - [x] fenced code with syntax colour',
-    '  - [ ] tables, quotes, footnote-free simplicity',
-    '- Headings show their source marks in the preview margin',
+    '- [x] fenced code with syntax colour',
+    '- [ ] tables, quotes, task lists',
     '',
     '> Type in the left pane. The right pane keeps up.',
     '',
@@ -1724,15 +2775,28 @@ var MD = (function () {
     '    return sum(kept) / max(len(kept), 1)',
     '```',
     '',
+    'Replace all of this and start writing.',
+    ''
+  ].join('\n');
+
+  var SHORTCUTS_NOTE = [
+    '# shortcuts',
+    '',
     '| Key | Does |',
     '|:--|:--|',
-    '| `Ctrl+S` | save to disk |',
-    '| `Ctrl+P` | cycle source / split / preview |',
-    '| `Ctrl+/` | every other shortcut |',
+    '| `Ctrl+P` | quick open — notes, or `>` for commands |',
+    '| `Ctrl+G` | go to line: `42`, `42:8`, `+10` or `$` |',
+    '| `Ctrl+F` | find and replace, with case / word / regex |',
+    '| `Ctrl+\\\\` | cycle source / split / preview |',
+    '| `Ctrl+S` | save now (notes autosave anyway) |',
+    '| `Ctrl+Shift+S` | export this note as `.md` |',
+    '| `Ctrl+Alt+N` | new note |',
+    '| `Ctrl+Shift+O` | toggle the sidebar |',
+    '| `Alt+Up` / `Alt+Down` | move the line or selection |',
+    '| `Ctrl+D` | duplicate the line or selection |',
+    '| `Ctrl+/` | the full list |',
     '',
-    '---',
-    '',
-    'Replace all of this and start writing.',
+    'Back to [[welcome]].',
     ''
   ].join('\n');
 
@@ -1774,13 +2838,21 @@ var MD = (function () {
     return true;
   }
 
+  // The force flag has to be sticky. Callers that change several lines at once
+  // run after setRange() has already queued a fast paint, so a plain parameter
+  // would be dropped and the mirror would keep stale rows.
   function schedulePaint(forceFull) {
+    if (forceFull) paintForce = true;
     if (paintQueued) return;
     paintQueued = true;
     requestAnimationFrame(function () {
       paintQueued = false;
-      if (forceFull || !fastPaint()) fullPaint();
+      var force = paintForce;
+      paintForce = false;
+      if (force || !fastPaint()) fullPaint();
+      invalidatePairs();
       syncMirrorScroll();
+      if (findOpen() && !findTimer) scheduleMarks();
     });
   }
 
@@ -1793,11 +2865,14 @@ var MD = (function () {
   function syncMirrorScroll() {
     mirror.scrollTop = ta.scrollTop;
     mirror.scrollLeft = ta.scrollLeft;
+    var inner = $('marksInner');
+    if (inner) inner.style.transform = 'translateY(' + (-ta.scrollTop) + 'px)';
   }
 
   function renderPreview() {
     previewStale = false;
-    var out = MD.render(ta.value);
+    invalidatePairs();
+    var out = MD.render(ta.value, { anchors: true });
     sheet.innerHTML = out.html || blankSlate();
     buildOutline(out.toc);
   }
@@ -1814,12 +2889,22 @@ var MD = (function () {
       if (document.body.dataset.mode === 'source') previewStale = true;
       else renderPreview();
       updateSlug();
+      scheduleLinks();
     }, wait);
   }
 
   function onInput() {
+    lineStartCache = null;
+    scheduleSave();
     schedulePaint(false);
     scheduleRender();
+    updateCaret();
+    if (findOpen()) {
+      var host = $('marksInner');
+      if (host) host.textContent = '';
+      clearTimeout(findTimer);
+      findTimer = setTimeout(function () { findTimer = null; computeMatches(); }, 180);
+    }
   }
 
   /* ---------- outline ---------- */
@@ -1860,17 +2945,148 @@ var MD = (function () {
     }
   }
 
+  /* ---------- caret position ---------- */
+
+  function caretInfo() {
+    var v = ta.value, pos = ta.selectionStart, line = 1;
+    for (var i = 0; i < pos; i++) if (v.charCodeAt(i) === 10) line++;
+    var start = v.lastIndexOf('\n', pos - 1) + 1;
+    return { line: line, col: pos - start + 1, sel: ta.selectionEnd - ta.selectionStart };
+  }
+
+  function updateCaret() {
+    if (caretRaf) return;
+    caretRaf = requestAnimationFrame(function () {
+      caretRaf = 0;
+      var c = caretInfo();
+      $('slugCaret').textContent = 'Ln ' + c.line + ' \u00b7 Col ' + c.col +
+        (c.sel ? ' \u00b7 ' + c.sel.toLocaleString() + ' sel' : '');
+    });
+  }
+
+  function totalLines() {
+    var v = ta.value, n = 1;
+    for (var i = 0; i < v.length; i++) if (v.charCodeAt(i) === 10) n++;
+    return n;
+  }
+
+  function offsetOfLine(n) {
+    var v = ta.value, i = 0, line = 1;
+    while (line < n) {
+      var nx = v.indexOf('\n', i);
+      if (nx === -1) return v.length;
+      i = nx + 1; line++;
+    }
+    return i;
+  }
+
+  function revealLine(n, flash) {
+    var row = mirror.children[n - 1];
+    if (!row) return;
+    var top = row.offsetTop;
+    if (top < ta.scrollTop + 30 || top > ta.scrollTop + ta.clientHeight - 60) {
+      ta.scrollTop = Math.max(0, top - Math.round(ta.clientHeight / 3));
+    }
+    syncMirrorScroll();
+    if (!flash) return;
+    row.classList.add('flash');
+    setTimeout(function () { row.classList.remove('flash'); }, 700);
+  }
+
+  /* ---------- go to line ---------- */
+
+  function toggleJump(show) {
+    var bar = $('jumpBar');
+    var on = show == null ? !bar.classList.contains('open') : show;
+    if (on) toggleFind(false);
+    bar.classList.toggle('open', on);
+    if (on) {
+      $('jumpTotal').textContent = 'of ' + totalLines().toLocaleString() + ' lines';
+      $('jumpInput').value = String(caretInfo().line);
+      $('jumpInput').focus();
+      $('jumpInput').select();
+    } else focusEditor();
+  }
+
+  function doJump() {
+    var raw = $('jumpInput').value.trim();
+    var total = totalLines();
+    var here = caretInfo();
+    var target = null, col = 1;
+
+    if (/^[+-]\d+$/.test(raw)) target = here.line + parseInt(raw, 10);
+    else if (/^(\$|end|last)$/i.test(raw)) target = total;
+    else if (/^(\^|start|top)$/i.test(raw)) target = 1;
+    else {
+      var m = /^(\d+)(?:\s*[:,]\s*(\d+))?$/.exec(raw);
+      if (!m) { toast('give a line number, +n, or $'); return; }
+      target = parseInt(m[1], 10);
+      if (m[2]) col = parseInt(m[2], 10);
+    }
+
+    target = Math.min(Math.max(1, target), total);
+    var start = offsetOfLine(target);
+    var end = ta.value.indexOf('\n', start);
+    if (end === -1) end = ta.value.length;
+    var pos = Math.min(start + Math.max(0, col - 1), end);
+
+    toggleJump(false);
+    ta.setSelectionRange(pos, pos);
+    revealLine(target, true);
+    updateCaret();
+  }
+
+  /* ---------- line operations ---------- */
+
+  function selectedLines() {
+    var s = sel();
+    return { a: lineBounds(s.v, s.a).a, b: lineBounds(s.v, s.b).b };
+  }
+
+  function moveLines(dir) {
+    var s = sel(), r = selectedLines(), v = s.v;
+    if (dir < 0) {
+      if (r.a === 0) return;
+      var prevStart = v.lastIndexOf('\n', r.a - 2) + 1;
+      var shiftUp = r.a - prevStart;
+      var merged = v.slice(r.a, r.b) + '\n' + v.slice(prevStart, r.a - 1);
+      setRange(prevStart, r.b, merged, s.a - shiftUp, s.b - shiftUp);
+    } else {
+      if (r.b >= v.length) return;
+      var nextEnd = v.indexOf('\n', r.b + 1);
+      if (nextEnd === -1) nextEnd = v.length;
+      var next = v.slice(r.b + 1, nextEnd);
+      var shiftDown = next.length + 1;
+      setRange(r.a, nextEnd, next + '\n' + v.slice(r.a, r.b), s.a + shiftDown, s.b + shiftDown);
+    }
+    schedulePaint(true);
+  }
+
+  function duplicateSelection() {
+    var s = sel();
+    if (s.a !== s.b) {
+      var chosen = s.v.slice(s.a, s.b);
+      setRange(s.b, s.b, chosen, s.b, s.b + chosen.length);
+      schedulePaint(true);
+      return;
+    }
+    var r = selectedLines();
+    var line = s.v.slice(r.a, r.b);
+    setRange(r.b, r.b, '\n' + line, s.a + line.length + 1);
+    schedulePaint(true);
+  }
+
   /* ---------- slug line ---------- */
 
   function updateSlug() {
     var s = MD.stats(ta.value);
-    $('slugName').textContent = fileName;
+    $('slugName').textContent = noteName;
     $('slugCount').textContent = s.words.toLocaleString() + ' words \u00b7 ' +
       s.chars.toLocaleString() + ' chars \u00b7 ' + s.lines.toLocaleString() + ' lines';
     $('slugRead').textContent = '~' + s.minutes + ' min read';
     var dirty = ta.value !== savedText;
     var st = $('slugState');
-    st.textContent = dirty ? 'unsaved changes' : 'no changes';
+    st.textContent = dirty ? 'saving\u2026' : 'saved';
     st.className = 'item label ' + (dirty ? 'dirty' : 'saved');
   }
 
@@ -2035,9 +3251,425 @@ var MD = (function () {
     return true;
   }
 
-  /* ---------- files ---------- */
+  /* ---------- workspace ---------- */
 
-  var canPick = typeof window.showSaveFilePicker === 'function';
+  var wsId = null, noteId = null, noteName = 'untitled';
+  var saveTimer = null;
+  var sideTab = 'files';
+  var noteSort = 'recent';
+  var linkTimer = null;
+
+  var WELCOME = SAMPLE;
+
+  function storeWarn(err) {
+    if (err && err.quota) {
+      toast('storage full — export this workspace');
+      $('slugStore').textContent = 'storage full';
+      $('slugStore').className = 'item label dirty';
+    } else {
+      toast(err && err.message ? err.message : 'could not save');
+    }
+  }
+
+  function bootWorkspace() {
+    var mode = Store.backend();
+    if (mode === 'memory') {
+      $('slugStore').textContent = 'not persisted';
+      $('slugStore').className = 'item label dirty';
+      $('slugStore').title = 'This browser is not allowing local storage, so notes live only in this tab. Export before closing.';
+    } else {
+      $('slugStore').textContent = '';
+      $('slugStore').className = 'item label';
+    }
+
+    var list = Store.listWorkspaces();
+    if (!list.length) {
+      var ws = Store.createWorkspace('notes');
+      Store.createNote(ws.id, 'shortcuts', SHORTCUTS_NOTE);
+      Store.createNote(ws.id, 'welcome', WELCOME);
+      list = Store.listWorkspaces();
+    }
+    var active = Store.getActive();
+    wsId = (active.ws && Store.getWorkspace(active.ws)) ? active.ws : list[0].id;
+    Store.reconcile(wsId);
+    var notes = Store.listNotes(wsId);
+    var wanted = active.note && notes.some(function (n) { return n.id === active.note; }) ? active.note
+      : (notes[0] ? notes[0].id : null);
+    if (!wanted) wanted = Store.createNote(wsId, 'untitled', '').id;
+    openNote(wanted, true);
+    refreshSide();
+  }
+
+  function safeLocalStorage() {
+    try { return window.localStorage; } catch (e) { return null; }
+  }
+
+  function currentText() { return ta.value; }
+
+  function flushSave(silent) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    if (!wsId || !noteId) return;
+    if (ta.value === savedText) { updateSlug(); return; }
+    try {
+      Store.writeNote(wsId, {
+        id: noteId, name: noteName, text: ta.value,
+        updated: Date.now(), caret: ta.selectionStart, scroll: ta.scrollTop
+      });
+      savedText = ta.value;
+      updateSlug();
+      refreshFileList();
+      scheduleLinks();
+      if (!silent) toast('saved');
+    } catch (err) { storeWarn(err); }
+  }
+
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () { flushSave(true); }, 700);
+  }
+
+  function rememberPosition() {
+    if (!wsId || !noteId) return;
+    try {
+      var n = Store.readNote(wsId, noteId);
+      if (!n) return;
+      n.caret = ta.selectionStart;
+      n.scroll = ta.scrollTop;
+      Store.writeNote(wsId, n);
+    } catch (e) { /* position is a nicety, never worth an error */ }
+  }
+
+  function openNote(id, initial) {
+    if (!initial) { flushSave(true); rememberPosition(); }
+    var n = Store.readNote(wsId, id);
+    if (!n) { toast('note is gone'); refreshSide(); return; }
+    noteId = n.id;
+    noteName = n.name;
+    ta.value = n.text;
+    savedText = n.text;
+    Store.setActive(wsId, noteId);
+    fullPaint();
+    renderPreview();
+    updateSlug();
+    var pos = Math.min(n.caret || 0, ta.value.length);
+    ta.setSelectionRange(pos, pos);
+    ta.scrollTop = n.scroll || 0;
+    previewEl.scrollTop = 0;
+    syncMirrorScroll();
+    updateCaret();
+    refreshFileList();
+    scheduleLinks();
+    if (!initial) {
+      if (window.innerWidth < 860 && sideOpen()) toggleSide(false);
+      focusEditor();
+    }
+  }
+
+  function newNote(name, text, openIt) {
+    try {
+      var n = Store.createNote(wsId, name || 'untitled', text || '');
+      refreshFileList();
+      if (openIt !== false) openNote(n.id);
+      return n;
+    } catch (err) { storeWarn(err); return null; }
+  }
+
+  function renameCurrentNote() {
+    ask('Rename note', noteName, function (v) {
+      var n = Store.renameNote(wsId, noteId, v);
+      if (!n) return;
+      noteName = n.name;
+      updateSlug(); refreshFileList(); scheduleLinks();
+    });
+  }
+
+  function deleteNote(id) {
+    var n = Store.readNote(wsId, id);
+    if (!n) return;
+    if (!confirm('Delete "' + n.name + '"? This cannot be undone.')) return;
+    Store.deleteNote(wsId, id);
+    if (id === noteId) {
+      var rest = Store.listNotes(wsId);
+      if (rest.length) openNote(rest[0].id);
+      else newNote('untitled', '');
+    }
+    refreshSide();
+    toast('deleted ' + n.name);
+  }
+
+  /* ---------- sidebar ---------- */
+
+  function sideOpen() { return document.body.classList.contains('side-open'); }
+
+  function toggleSide(show) {
+    var on = show == null ? !sideOpen() : show;
+    document.body.classList.toggle('side-open', on);
+    $('btnSide').classList.toggle('on', on);
+    if (on) refreshSide();
+  }
+
+  function setSideTab(name) {
+    sideTab = name;
+    ['files', 'outline', 'links'].forEach(function (t) {
+      $('tab-' + t).classList.toggle('on', t === name);
+      $('tab-' + t).setAttribute('aria-selected', String(t === name));
+      $('panel-' + t).classList.toggle('on', t === name);
+    });
+    refreshSide();
+  }
+
+  function refreshSide() {
+    if (!sideOpen() || !wsId) return;
+    refreshFileList();
+    if (sideTab === 'links') refreshLinks();
+    refreshUsage();
+    $('wsName').textContent = (Store.getWorkspace(wsId) || {}).name || 'workspace';
+  }
+
+  function relTime(ms) {
+    var d = Date.now() - ms;
+    if (d < 60000) return 'just now';
+    if (d < 3600000) return Math.floor(d / 60000) + 'm';
+    if (d < 86400000) return Math.floor(d / 3600000) + 'h';
+    if (d < 2592000000) return Math.floor(d / 86400000) + 'd';
+    return new Date(ms).toISOString().slice(0, 10);
+  }
+
+  function refreshFileList() {
+    if (!sideOpen() || !wsId) return;
+    var filter = $('fileFilter').value.trim().toLowerCase();
+    var notes = Store.listNotes(wsId, noteSort);
+    if (filter) {
+      notes = notes.filter(function (n) { return n.name.toLowerCase().indexOf(filter) !== -1; });
+    }
+    var box = $('fileList');
+    if (!notes.length) {
+      box.innerHTML = '<div class="empty">' + (filter ? 'No note matches.' : 'No notes yet.') + '</div>';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < notes.length; i++) {
+      var n = notes[i];
+      html += '<div class="row' + (n.id === noteId ? ' on' : '') + '" data-id="' + MD.esc(n.id) + '">' +
+        '<button class="row-main" title="' + MD.esc(n.name) + '">' +
+        '<span class="row-name">' + MD.esc(n.name) + '</span>' +
+        '<span class="row-meta">' + relTime(n.updated) + '</span></button>' +
+        '<button class="row-act" data-act="rename" title="Rename" aria-label="Rename ' + MD.esc(n.name) + '">' +
+        '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><use href="#i-pencil"></use></svg></button>' +
+        '<button class="row-act" data-act="delete" title="Delete" aria-label="Delete ' + MD.esc(n.name) + '">' +
+        '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><use href="#i-trash"></use></svg></button>' +
+        '</div>';
+    }
+    box.innerHTML = html;
+  }
+
+  function scheduleLinks() {
+    clearTimeout(linkTimer);
+    linkTimer = setTimeout(function () {
+      if (sideOpen() && sideTab === 'links') refreshLinks();
+    }, 250);
+  }
+
+  function refreshLinks() {
+    var out = MD.wikiLinks(ta.value);
+    var seen = Object.create(null), html = '';
+    for (var i = 0; i < out.length; i++) {
+      var key = out[i].toLowerCase();
+      if (seen[key]) continue;
+      seen[key] = 1;
+      var hit = Store.findNoteByName(wsId, out[i]);
+      html += '<div class="row"><button class="row-main" data-link="' + MD.esc(out[i]) + '">' +
+        '<span class="row-name">' + MD.esc(out[i]) + '</span>' +
+        '<span class="row-meta">' + (hit ? '' : 'new') + '</span></button></div>';
+    }
+    $('linksOut').innerHTML = html || '<div class="empty">No [[links]] in this note.</div>';
+
+    var back = Store.backlinks(wsId, noteName);
+    var bh = '';
+    for (var k = 0; k < back.length; k++) {
+      bh += '<div class="row" data-id="' + MD.esc(back[k].id) + '"><button class="row-main">' +
+        '<span class="row-name">' + MD.esc(back[k].name) + '</span></button></div>';
+    }
+    $('linksIn').innerHTML = bh || '<div class="empty">Nothing links here yet.</div>';
+  }
+
+  var QUOTA_HINT = 5 * 1024 * 1024;   // browsers typically allow about this much
+  var BACKUP_AFTER = 14 * 86400000;
+
+  function refreshUsage() {
+    var u = Store.usage();
+    var kb = u.bytes / 1024;
+    var size = kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : Math.round(kb) + ' KB';
+    var count = Store.listNotes(wsId).length;
+    var text = count + ' notes \u00b7 ' + size;
+    var warn = false;
+
+    if (Store.backend() === 'memory') { text += ' \u00b7 not saved'; warn = true; }
+    else if (u.bytes > QUOTA_HINT * 0.8) { text += ' \u00b7 nearly full'; warn = true; }
+    else {
+      var last = Store.lastExport();
+      if (count > 3 && (!last || Date.now() - last > BACKUP_AFTER)) {
+        text += ' \u00b7 back up';
+        warn = true;
+      }
+    }
+    var el = $('wsUsage');
+    el.textContent = text;
+    el.classList.toggle('warn', warn);
+    el.title = warn && Store.backend() !== 'memory'
+      ? 'Export this workspace to keep a copy outside the browser'
+      : 'Workspace storage';
+  }
+
+  /* ---------- workspace menu ---------- */
+
+  function openWsMenu() {
+    var menu = $('wsMenu');
+    var items = [];
+    Store.listWorkspaces().forEach(function (w) {
+      items.push({ label: w.name, act: 'open:' + w.id, on: w.id === wsId });
+    });
+    items.push({ sep: true });
+    items.push({ label: 'New workspace\u2026', act: 'new' });
+    items.push({ label: 'Rename workspace\u2026', act: 'rename' });
+    items.push({ label: 'Back up as .md files (.zip)', act: 'zip' });
+    items.push({ label: 'Save notes to a folder\u2026', act: 'dump' });
+    items.push({ label: 'Back up as .json (re-importable)', act: 'export' });
+    items.push({ label: 'Import workspace or notes\u2026', act: 'import' });
+    items.push({ sep: true });
+    items.push({ label: 'Delete workspace\u2026', act: 'delete', danger: true });
+
+    menu.innerHTML = items.map(function (it) {
+      if (it.sep) return '<div class="menu-sep"></div>';
+      return '<button class="menu-item' + (it.on ? ' on' : '') + (it.danger ? ' danger' : '') +
+        '" data-act="' + it.act + '">' + MD.esc(it.label) + '</button>';
+    }).join('');
+
+    var r = $('wsPick').getBoundingClientRect();
+    menu.style.left = Math.round(r.left) + 'px';
+    menu.style.top = Math.round(r.bottom + 4) + 'px';
+    menu.classList.add('open');
+  }
+
+  function closeWsMenu() { $('wsMenu').classList.remove('open'); }
+
+  function wsAction(act) {
+    closeWsMenu();
+    if (act.indexOf('open:') === 0) {
+      var id = act.slice(5);
+      if (id === wsId) return;
+      flushSave(true); rememberPosition();
+      wsId = id;
+      Store.reconcile(wsId);
+      var notes = Store.listNotes(wsId);
+      Store.setActive(wsId, notes[0] ? notes[0].id : null);
+      if (notes.length) openNote(notes[0].id, true); else newNote('untitled', '');
+      refreshSide();
+      toast('workspace: ' + Store.getWorkspace(wsId).name);
+      return;
+    }
+    if (act === 'new') {
+      ask('New workspace', '', function (v) {
+        var ws = Store.createWorkspace(v);
+        wsId = ws.id;
+        newNote('untitled', '');
+        refreshSide();
+      });
+      return;
+    }
+    if (act === 'rename') {
+      ask('Rename workspace', (Store.getWorkspace(wsId) || {}).name || '', function (v) {
+        Store.renameWorkspace(wsId, v); refreshSide();
+      });
+      return;
+    }
+    if (act === 'export') {
+      var bundle = Store.exportWorkspace(wsId);
+      download(JSON.stringify(bundle, null, 2),
+        slugName(bundle.name) + '-workspace.json', 'application/json');
+      Store.markExported();
+      refreshSide();
+      toast('exported ' + bundle.notes.length + ' notes');
+      return;
+    }
+    if (act === 'zip') { zipWorkspace(); return; }
+    if (act === 'import') { $('wsPicker').click(); return; }
+    if (act === 'dump') { dumpNotes(); return; }
+    if (act === 'delete') {
+      var w = Store.getWorkspace(wsId);
+      if (Store.listWorkspaces().length < 2) { toast('keep at least one workspace'); return; }
+      if (!confirm('Delete workspace "' + w.name + '" and all its notes?')) return;
+      Store.deleteWorkspace(wsId);
+      wsId = Store.listWorkspaces()[0].id;
+      var notes = Store.listNotes(wsId);
+      if (notes.length) openNote(notes[0].id, true); else newNote('untitled', '');
+      refreshSide();
+      toast('deleted ' + w.name);
+    }
+  }
+
+  function slugName(s) {
+    return String(s || 'workspace').toLowerCase().replace(/[^\w\s-]/g, '')
+      .trim().replace(/\s+/g, '-').slice(0, 48) || 'workspace';
+  }
+
+  // Write every note into a directory the user picks. Chromium only; elsewhere
+  // fall back to the json bundle rather than firing off N downloads.
+  function dumpNotes() {
+    if (typeof window.showDirectoryPicker !== 'function') {
+      zipWorkspace();
+      toast('folder access unavailable — sent a .zip instead');
+      return;
+    }
+    (async function () {
+      try {
+        var dir = await window.showDirectoryPicker({ mode: 'readwrite' });
+        var notes = Store.listNotes(wsId);
+        for (var i = 0; i < notes.length; i++) {
+          var n = Store.readNote(wsId, notes[i].id);
+          if (!n) continue;
+          var fh = await dir.getFileHandle(slugName(n.name) + '.md', { create: true });
+          var w = await fh.createWritable();
+          await w.write(n.text);
+          await w.close();
+        }
+        Store.markExported();
+        refreshSide();
+        toast('wrote ' + notes.length + ' files');
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        zipWorkspace();                       // refused on file:// origins
+        toast('folder access refused — sent a .zip instead');
+      }
+    })();
+  }
+
+  /* ---------- disk import / export ---------- */
+
+  function downloadBytes(bytes, name, type) {
+    var blob = new Blob([bytes], { type: type || 'application/octet-stream' });
+    var url = URL.createObjectURL(blob);
+    var el = document.createElement('a');
+    el.href = url; el.download = name;
+    document.body.appendChild(el); el.click(); el.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+
+  function zipWorkspace() {
+    flushSave(true);
+    var name = (Store.getWorkspace(wsId) || {}).name || 'workspace';
+    var count = Store.listNotes(wsId).length;
+    if (!count) { toast('nothing to export'); return; }
+    try {
+      downloadBytes(Store.zipWorkspace(wsId), slugName(name) + '.zip', 'application/zip');
+      Store.markExported();
+      refreshSide();
+      toast('exported ' + count + ' .md files');
+    } catch (e) {
+      toast('could not build the archive');
+    }
+  }
 
   function download(text, name, type) {
     var blob = new Blob([text], { type: (type || 'text/markdown') + ';charset=utf-8' });
@@ -2048,89 +3680,69 @@ var MD = (function () {
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
   }
 
-  function suggestName() {
-    var m = /^ {0,3}#{1,6}[ \t]+(.+?)[ \t]*#*[ \t]*$/m.exec(ta.value);
-    if (!m) return 'untitled.md';
-    return m[1].toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 48) + '.md' || 'untitled.md';
+  function exportNote() {
+    flushSave(true);
+    download(ta.value, slugName(noteName) + '.md');
+    toast('exported ' + noteName + '.md');
   }
 
-  function save(forceNew) {
-    var text = ta.value;
-    if (canPick) {
-      (async function () {
-        try {
-          if (forceNew || !fileHandle) {
-            fileHandle = await window.showSaveFilePicker({
-              suggestedName: fileName === 'untitled.md' ? suggestName() : fileName,
-              types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md', '.markdown', '.txt'] } }]
-            });
-          }
-          var w = await fileHandle.createWritable();
-          await w.write(text);
-          await w.close();
-          fileName = fileHandle.name;
-          savedText = text;
-          updateSlug();
-          toast('saved to ' + fileName);
-        } catch (err) {
-          if (err && err.name === 'AbortError') return;
-          fileHandle = null;
-          canPick = false;
-          download(text, fileName === 'untitled.md' ? suggestName() : fileName);
-          savedText = text; updateSlug();
-          toast('downloaded');
-        }
-      })();
-      return;
+  // A .json bundle restores a whole workspace; markdown files land as notes
+  // in the current one. Mixed selections are handled in order.
+  function importFiles(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length) return;
+    var mds = list.filter(function (f) { return !/\.json$/i.test(f.name); });
+    var jsons = list.filter(function (f) { return /\.json$/i.test(f.name); });
+
+    jsons.forEach(function (f) { importFile(f); });
+    if (!mds.length) return;
+
+    var pending = mds.length, made = 0, last = null;
+    mds.forEach(function (f) {
+      var r = new FileReader();
+      r.onload = function () {
+        var name = f.name.replace(/\.[^.]+$/, '');
+        var n = Store.createNote(wsId, name, String(r.result).replace(/\r\n?/g, '\n'));
+        made++; last = n.id;
+        if (--pending === 0) finish();
+      };
+      r.onerror = function () { if (--pending === 0) finish(); };
+      r.readAsText(f);
+    });
+
+    function finish() {
+      refreshSide();
+      if (last) openNote(last, true);
+      toast('imported ' + made + (made === 1 ? ' note' : ' notes'));
     }
-    var name = fileName === 'untitled.md' ? suggestName() : fileName;
-    download(text, name);
-    fileName = name;
-    savedText = text;
-    updateSlug();
-    toast('downloaded ' + name);
   }
 
-  function loadText(text, name) {
-    if (ta.value !== savedText && !confirm('Discard unsaved changes and open ' + name + '?')) return;
-    ta.value = text.replace(/\r\n?/g, '\n');
-    fileName = name || 'untitled.md';
-    savedText = ta.value;
-    ta.setSelectionRange(0, 0);
-    ta.scrollTop = 0;
-    previewEl.scrollTop = 0;
-    schedulePaint(true);
-    renderPreview();
-    updateSlug();
-    toast('opened ' + fileName);
-  }
-
-  function open() {
-    if (typeof window.showOpenFilePicker === 'function') {
-      (async function () {
+  function importFile(file) {
+    var r = new FileReader();
+    r.onload = function () {
+      var text = String(r.result).replace(/\r\n?/g, '\n');
+      if (/\.json$/i.test(file.name)) {
         try {
-          var handles = await window.showOpenFilePicker({
-            types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md', '.markdown', '.txt', '.mdx'] } }]
-          });
-          var h = handles[0];
-          var f = await h.getFile();
-          loadText(await f.text(), f.name);
-          fileHandle = h;
-          return;
-        } catch (err) {
-          if (err && err.name === 'AbortError') return;
-        }
-        $('picker').click();
-      })();
-      return;
-    }
-    $('picker').click();
+          var ws = Store.importWorkspace(JSON.parse(text));
+          wsId = ws.id;
+          var notes = Store.listNotes(wsId);
+          if (notes.length) openNote(notes[0].id, true); else newNote('untitled', '');
+          refreshSide();
+          toast('imported ' + notes.length + ' notes');
+        } catch (err) { toast(err.message || 'could not import'); }
+        return;
+      }
+      var name = file.name.replace(/\.[^.]+$/, '');
+      newNote(name, text);
+      toast('imported ' + name);
+    };
+    r.readAsText(file);
   }
 
   function exportHtml() {
-    var out = MD.render(ta.value);
+    var out = MD.render(ta.value, { anchors: true });
     var css = document.getElementById('appcss').textContent;
-    var title = (out.toc[0] && out.toc[0].text) || fileName.replace(/\.[^.]+$/, '');
+    var title = (out.toc[0] && out.toc[0].text) || noteName;
     var doc = '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
       '<title>' + MD.esc(title) + '</title>\n<style>\n' + css +
@@ -2138,7 +3750,7 @@ var MD = (function () {
       '\nbody{display:block;padding:40px 20px}' +
       '\n.sheet{padding:0;margin:0 auto;max-width:40em}</style>\n</head>\n<body>\n' +
       '<article class="sheet">' + out.html + '</article>\n</body></html>';
-    download(doc, fileName.replace(/\.[^.]+$/, '') + '.html', 'text/html');
+    download(doc, slugName(noteName) + '.html', 'text/html');
     toast('exported html');
   }
 
@@ -2157,67 +3769,222 @@ var MD = (function () {
     document.body.appendChild(t); t.select();
     try { document.execCommand('copy'); done(); } catch (e) { toast('copy failed'); }
     t.remove();
-    ta.focus();
+    focusEditor();
+  }
+
+  /* ---------- small prompt dialog ---------- */
+
+  var askCb = null;
+
+  function ask(title, value, cb) {
+    askCb = cb;
+    $('askTitle').textContent = title;
+    $('askInput').value = value || '';
+    $('ask').classList.add('open');
+    setTimeout(function () { $('askInput').focus(); $('askInput').select(); }, 0);
+  }
+
+  function askDone(ok) {
+    var v = $('askInput').value.trim();
+    $('ask').classList.remove('open');
+    var cb = askCb; askCb = null;
+    if (ok && v && cb) cb(v);
+    else focusEditor();
   }
 
   /* ---------- find & replace ---------- */
 
-  var lastFind = -1;
+  var findOpts = { case: false, word: false, regex: false };
+  var matches = [];
+  var matchIndex = -1;
+  var marksRaf = 0;
 
-  function findNext(back) {
-    var q = $('findInput').value;
-    if (!q) return;
-    var hay = ta.value.toLowerCase(), needle = q.toLowerCase();
-    var from, idx;
-    if (back) {
-      from = Math.max(0, ta.selectionStart - 1);
-      idx = hay.lastIndexOf(needle, from - 1);
-      if (idx === -1) idx = hay.lastIndexOf(needle);
-    } else {
-      from = ta.selectionEnd;
-      idx = hay.indexOf(needle, from);
-      if (idx === -1) idx = hay.indexOf(needle);
-    }
-    if (idx === -1) { $('findCount').textContent = 'no matches'; return; }
-    lastFind = idx;
-    ta.focus();
-    ta.setSelectionRange(idx, idx + q.length);
-    scrollCaretIntoView();
-    countMatches();
+  function findOpen() { return $('findBar').classList.contains('open'); }
+
+  function buildRe(q) {
+    var src = findOpts.regex ? q : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (findOpts.word) src = '\\b(?:' + src + ')\\b';
+    return new RegExp(src, findOpts.case ? 'g' : 'gi');
   }
 
-  function countMatches() {
+  var MATCH_CAP = 5000;
+
+  function computeMatches() {
     var q = $('findInput').value;
-    if (!q) { $('findCount').textContent = ''; return; }
-    var hay = ta.value.toLowerCase(), needle = q.toLowerCase();
-    var n = 0, i = hay.indexOf(needle);
-    while (i !== -1) { n++; i = hay.indexOf(needle, i + needle.length); }
-    $('findCount').textContent = n ? n + ' match' + (n > 1 ? 'es' : '') : 'no matches';
+    matches = [];
+    if (!q) { matchIndex = -1; updateFindCount(''); scheduleMarks(); return; }
+    var re;
+    try { re = buildRe(q); } catch (e) { matchIndex = -1; updateFindCount('bad pattern'); scheduleMarks(); return; }
+    var v = ta.value, m;
+    re.lastIndex = 0;
+    while ((m = re.exec(v)) !== null) {
+      if (m[0].length === 0) { re.lastIndex++; if (re.lastIndex > v.length) break; continue; }
+      matches.push([m.index, m.index + m[0].length]);
+      if (matches.length >= MATCH_CAP) break;
+    }
+    syncMatchIndex();
+    updateFindCount();
+    scheduleMarks();
+  }
+
+  // Keep the "n of m" readout honest when the caret is moved by hand.
+  function syncMatchIndex() {
+    var a0 = ta.selectionStart, b0 = ta.selectionEnd;
+    for (var i = 0; i < matches.length; i++) {
+      if (matches[i][0] === a0 && matches[i][1] === b0) { matchIndex = i; return; }
+    }
+    matchIndex = -1;
+  }
+
+  function updateFindCount(override) {
+    var el = $('findCount');
+    if (override != null) { el.textContent = override; return; }
+    if (!$('findInput').value) { el.textContent = ''; return; }
+    if (!matches.length) { el.textContent = 'no matches'; return; }
+    var capped = matches.length >= MATCH_CAP ? '+' : '';
+    el.textContent = (matchIndex >= 0 ? (matchIndex + 1) + ' / ' : '') + matches.length + capped;
+  }
+
+  function findNext(back) {
+    if (!matches.length) { computeMatches(); }
+    if (!matches.length) return;
+    var pos = back ? ta.selectionStart : ta.selectionEnd;
+    var i;
+    if (back) {
+      for (i = matches.length - 1; i >= 0; i--) if (matches[i][1] <= pos) break;
+      if (i < 0) i = matches.length - 1;                 // wrap to the end
+    } else {
+      for (i = 0; i < matches.length; i++) if (matches[i][0] >= pos) break;
+      if (i >= matches.length) i = 0;                    // wrap to the start
+    }
+    matchIndex = i;
+    focusEditor();
+    ta.setSelectionRange(matches[i][0], matches[i][1]);
+    scrollCaretIntoView();
+    updateFindCount();
+    updateCaret();
+    scheduleMarks();
   }
 
   function replaceOne() {
-    var q = $('findInput').value;
-    if (!q) return;
-    var chosen = ta.value.slice(ta.selectionStart, ta.selectionEnd);
-    if (chosen.toLowerCase() === q.toLowerCase()) {
-      setRange(ta.selectionStart, ta.selectionEnd, $('replaceInput').value,
-        ta.selectionStart, ta.selectionStart + $('replaceInput').value.length);
+    if (!$('findInput').value) return;
+    var a0 = ta.selectionStart, b0 = ta.selectionEnd;
+    var isMatch = false;
+    for (var i = 0; i < matches.length; i++) {
+      if (matches[i][0] === a0 && matches[i][1] === b0) { isMatch = true; break; }
     }
+    if (!isMatch) { findNext(false); return; }
+    var rep = $('replaceInput').value;
+    setRange(a0, b0, rep, a0 + rep.length, a0 + rep.length);
+    computeMatches();
     findNext(false);
   }
 
   function replaceAll() {
     var q = $('findInput').value;
     if (!q) return;
+    computeMatches();
+    if (!matches.length) { toast('no matches'); return; }
     var rep = $('replaceInput').value;
-    var parts = [], hay = ta.value, low = hay.toLowerCase(), needle = q.toLowerCase();
-    var i = 0, at, n = 0;
-    while ((at = low.indexOf(needle, i)) !== -1) { parts.push(hay.slice(i, at), rep); i = at + needle.length; n++; }
-    parts.push(hay.slice(i));
-    if (!n) { toast('no matches'); return; }
-    setRange(0, hay.length, parts.join(''), 0, 0);
+    var v = ta.value, out = [], at = 0;
+    for (var i = 0; i < matches.length; i++) {
+      out.push(v.slice(at, matches[i][0]), rep);
+      at = matches[i][1];
+    }
+    out.push(v.slice(at));
+    var n = matches.length;
+    setRange(0, v.length, out.join(''), 0, 0);
     schedulePaint(true);
+    computeMatches();
     toast('replaced ' + n);
+  }
+
+  /* ---- highlight every match in the mirror layer ---- */
+
+  function getLineStarts() {
+    if (lineStartCache) return lineStartCache;
+    var v = ta.value, arr = [0], i = 0;
+    while ((i = v.indexOf('\n', i)) !== -1) arr.push(++i);
+    lineStartCache = arr;
+    return arr;
+  }
+
+  function lineOf(starts, pos) {
+    var lo = 0, hi = starts.length - 1;
+    while (lo < hi) {
+      var mid = (lo + hi + 1) >> 1;
+      if (starts[mid] <= pos) lo = mid; else hi = mid - 1;
+    }
+    return lo;
+  }
+
+  // Walk the row's text nodes to build a Range over [a, b) of that line.
+  function rectsFor(row, a, b) {
+    var walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT, null, false);
+    var node, acc = 0, range = document.createRange(), open = false, last = null;
+    while ((node = walker.nextNode())) {
+      var len = node.nodeValue.length;
+      last = node;
+      if (!open && acc + len >= a) { range.setStart(node, a - acc); open = true; }
+      if (open && acc + len >= b) { range.setEnd(node, b - acc); return range.getClientRects(); }
+      acc += len;
+    }
+    if (open && last) { range.setEnd(last, last.nodeValue.length); return range.getClientRects(); }
+    return [];
+  }
+
+  function scheduleMarks() {
+    if (marksRaf) return;
+    marksRaf = requestAnimationFrame(function () { marksRaf = 0; renderMarks(); });
+  }
+
+  function renderMarks() {
+    var host = $('marksInner');
+    if (!host) return;
+    if (!findOpen() || !matches.length) { host.textContent = ''; return; }
+
+    var starts = getLineStarts();
+    var rows = mirror.children;
+    var v = ta.value;
+    var mRect = mirror.getBoundingClientRect();
+    var top = ta.scrollTop - 400, bottom = ta.scrollTop + ta.clientHeight + 400;
+    var frag = document.createDocumentFragment();
+
+    for (var k = 0; k < matches.length; k++) {
+      var li = lineOf(starts, matches[k][0]);
+      var row = rows[li];
+      if (!row) continue;
+      var ot = row.offsetTop;
+      if (ot > bottom || ot + row.offsetHeight < top) continue;
+
+      var lineStart = starts[li];
+      var lineEnd = li + 1 < starts.length ? starts[li + 1] - 1 : v.length;
+      var from = matches[k][0] - lineStart;
+      var to = Math.min(matches[k][1], lineEnd) - lineStart;
+      if (to <= from) continue;
+
+      var rects = rectsFor(row, from, to);
+      for (var r = 0; r < rects.length; r++) {
+        var box = rects[r];
+        if (!box.width) continue;
+        var d = document.createElement('div');
+        d.className = k === matchIndex ? 'mark cur' : 'mark';
+        d.style.left = (box.left - mRect.left) + 'px';
+        d.style.top = (box.top - mRect.top + ta.scrollTop - 2) + 'px';
+        d.style.width = box.width + 'px';
+        d.style.height = (box.height + 4) + 'px';
+        frag.appendChild(d);
+      }
+    }
+    host.textContent = '';
+    host.appendChild(frag);
+  }
+
+  function setFindOpt(name) {
+    findOpts[name] = !findOpts[name];
+    $('opt-' + name).classList.toggle('on', findOpts[name]);
+    $('opt-' + name).setAttribute('aria-pressed', String(findOpts[name]));
+    computeMatches();
   }
 
   function scrollCaretIntoView() {
@@ -2234,6 +4001,7 @@ var MD = (function () {
   function toggleFind(show) {
     var bar = $('findBar');
     var on = show == null ? !bar.classList.contains('open') : show;
+    if (on) toggleJump(false);
     bar.classList.toggle('open', on);
     $('btnFind').classList.toggle('on', on);
     if (on) {
@@ -2241,8 +4009,173 @@ var MD = (function () {
       if (chosen && chosen.indexOf('\n') === -1) $('findInput').value = chosen;
       $('findInput').focus();
       $('findInput').select();
-      countMatches();
-    } else ta.focus();
+      computeMatches();
+    } else {
+      matches = []; matchIndex = -1;
+      renderMarks();
+      focusEditor();
+    }
+  }
+
+  function followWikiLink(name) {
+    var hit = Store.findNoteByName(wsId, name);
+    if (hit) { openNote(hit.id); return; }
+    if (!confirm('"' + name + '" does not exist yet. Create it?')) return;
+    newNote(name, '# ' + name + '\n\n');
+  }
+
+  /* ---------- quick open palette ---------- */
+
+  var palItems = [], palSel = 0;
+
+  function paletteOpen() { return $('palette').classList.contains('open'); }
+
+  function COMMANDS() {
+    return [
+      { label: 'New note', run: function () { ask('New note', '', function (v) { newNote(v, ''); }); } },
+      { label: 'Rename this note', run: renameCurrentNote },
+      { label: 'Duplicate this note', run: function () {
+          var n = Store.duplicateNote(wsId, noteId);
+          if (n) { refreshFileList(); openNote(n.id); } } },
+      { label: 'Delete this note', run: function () { deleteNote(noteId); } },
+      { label: 'Export this note (.md)', run: exportNote },
+      { label: 'Export this note (.html)', run: exportHtml },
+      { label: 'Copy rendered HTML', run: copyHtml },
+      { label: 'Print / save as PDF', run: function () { window.print(); } },
+      { label: 'Export workspace (.json)', run: function () { wsAction('export'); } },
+      { label: 'Export all notes to a folder', run: dumpNotes },
+      { label: 'Import a file\u2026', run: function () { $('picker').click(); } },
+      { label: 'New workspace\u2026', run: function () { wsAction('new'); } },
+      { label: 'Switch workspace\u2026', run: openWsMenu },
+      { label: 'Toggle sidebar', run: function () { toggleSide(); } },
+      { label: 'Toggle line numbers', run: function () { $('btnGutter').click(); } },
+      { label: 'Toggle light / dark', run: function () {
+          setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); } },
+      { label: 'Sort notes by name', run: function () { noteSort = 'name'; refreshFileList(); } },
+      { label: 'Sort notes by recent', run: function () { noteSort = 'recent'; refreshFileList(); } },
+      { label: 'Find and replace', run: function () { toggleFind(true); } },
+      { label: 'Go to line', run: function () { toggleJump(true); } },
+      { label: 'Repair workspace index', run: function () {
+          var r = Store.reconcile(wsId); refreshSide();
+          toast('recovered ' + r.added + ', dropped ' + r.dropped); } },
+      { label: 'Keyboard shortcuts', run: function () { $('help').classList.add('open'); } }
+    ];
+  }
+
+  // Subsequence match: "nmp" hits "nmap notes". Score favours earlier and
+  // tighter runs so exact prefixes float to the top.
+  function fuzzy(text, q) {
+    if (!q) return 0;
+    var t = text.toLowerCase(), n = t.length, qi = 0, score = 0, last = -1;
+    for (var i = 0; i < n && qi < q.length; i++) {
+      if (t.charCodeAt(i) !== q.charCodeAt(qi)) continue;
+      score += (last === i - 1 ? 6 : 1) + Math.max(0, 8 - i);
+      last = i; qi++;
+    }
+    if (qi < q.length) return -1;
+    if (t.indexOf(q) === 0) score += 40;
+    else if (t.indexOf(q) > 0) score += 15;
+    return score;
+  }
+
+  function buildPalette() {
+    var raw = $('paletteInput').value;
+    palItems = [];
+
+    if (raw.charAt(0) === '>') {
+      var q = raw.slice(1).trim().toLowerCase();
+      COMMANDS().forEach(function (c) {
+        var s = q ? fuzzy(c.label, q) : 1;
+        if (s >= 0) palItems.push({ kind: 'cmd', label: c.label, score: s, run: c.run });
+      });
+      palItems.sort(function (x, y) { return y.score - x.score; });
+    } else {
+      var q2 = raw.trim().toLowerCase();
+      var notes = Store.listNotes(wsId, 'recent');
+      if (!q2) {
+        notes.slice(0, 12).forEach(function (n) {
+          palItems.push({ kind: 'note', id: n.id, label: n.name, meta: relTime(n.updated), score: 0 });
+        });
+      } else {
+        notes.forEach(function (n) {
+          var s = fuzzy(n.name, q2);
+          if (s >= 0) palItems.push({ kind: 'note', id: n.id, label: n.name, meta: relTime(n.updated), score: s });
+        });
+        palItems.sort(function (x, y) { return y.score - x.score; });
+        palItems = palItems.slice(0, 20);
+
+        var named = Object.create(null);
+        palItems.forEach(function (p) { named[p.id] = 1; });
+        Store.searchNotes(wsId, q2, 12).forEach(function (h) {
+          if (named[h.id]) return;
+          palItems.push({ kind: 'text', id: h.id, label: h.name, meta: h.count + '\u00d7', line: h.line });
+        });
+      }
+    }
+    palSel = 0;
+    drawPalette();
+  }
+
+  function drawPalette() {
+    var box = $('paletteList');
+    var raw = $('paletteInput').value.trim();
+    if (!palItems.length) {
+      box.innerHTML = '<div class="empty">' +
+        (raw && raw.charAt(0) !== '>' ? 'No match. Shift+Enter creates "' + MD.esc(raw) + '".' : 'Nothing matches.') +
+        '</div>';
+      return;
+    }
+    var html = '', lastKind = null;
+    for (var i = 0; i < palItems.length; i++) {
+      var it = palItems[i];
+      if (it.kind !== lastKind) {
+        html += '<div class="pal-head label">' +
+          (it.kind === 'cmd' ? 'commands' : it.kind === 'note' ? 'notes' : 'in text') + '</div>';
+        lastKind = it.kind;
+      }
+      html += '<div class="pal-item' + (i === palSel ? ' on' : '') + '" data-i="' + i + '" role="option">' +
+        '<span class="pal-label">' + MD.esc(it.label) + '</span>' +
+        (it.line ? '<span class="pal-line">' + MD.esc(it.line) + '</span>' : '') +
+        (it.meta ? '<span class="pal-meta">' + MD.esc(it.meta) + '</span>' : '') + '</div>';
+    }
+    box.innerHTML = html;
+    var sel = box.querySelector('.pal-item.on');
+    if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+  }
+
+  function movePalette(d) {
+    if (!palItems.length) return;
+    palSel = (palSel + d + palItems.length) % palItems.length;
+    drawPalette();
+  }
+
+  function runPalette(create) {
+    var raw = $('paletteInput').value.trim();
+    if (create && raw && raw.charAt(0) !== '>') {
+      togglePalette(false);
+      newNote(raw, '# ' + raw + '\n\n');
+      return;
+    }
+    var it = palItems[palSel];
+    if (!it) {
+      if (raw && raw.charAt(0) !== '>') { togglePalette(false); newNote(raw, '# ' + raw + '\n\n'); }
+      return;
+    }
+    togglePalette(false);
+    if (it.kind === 'cmd') it.run();
+    else openNote(it.id);
+  }
+
+  function togglePalette(show) {
+    var el = $('palette');
+    var on = show == null ? !paletteOpen() : show;
+    el.classList.toggle('open', on);
+    $('btnPalette').classList.toggle('on', on);
+    if (on) {
+      $('paletteInput').value = '';
+      buildPalette();
+      setTimeout(function () { $('paletteInput').focus(); }, 0);
+    } else focusEditor();
   }
 
   /* ---------- modes, theme, panels ---------- */
@@ -2263,6 +4196,7 @@ var MD = (function () {
   }
 
   function setTheme(t) {
+    Store.setPref('theme', t);
     document.documentElement.dataset.theme = t;
     $('btnTheme').textContent = t === 'dark' ? '\u25d1' : '\u25d0';
     $('btnTheme').title = t === 'dark' ? 'Switch to light (Ctrl+Shift+L)' : 'Switch to dark (Ctrl+Shift+L)';
@@ -2282,15 +4216,82 @@ var MD = (function () {
   // Both panes carry 55vh of trailing room so the last line can sit mid-screen.
   // That padding is not content, so it must come out of the ratio -- otherwise
   // a short document maps a source position of zero onto a scrolled preview.
+  /* ---------- scroll correspondence ----------
+     A proportional mapping drifts, because the two panes are different
+     heights: 40% down the source is not 40% down the preview. Instead every
+     top-level block carries the source line it came from, giving a table of
+     (sourceY, previewY) pairs. Both ends are pinned and each pair is a fixed
+     point, so a heading at the top of one pane is that heading at the top of
+     the other, with linear interpolation in between. */
+
+  var scrollPairs = null;
+
+  function invalidatePairs() { scrollPairs = null; }
+
+  function buildPairs() {
+    var rows = mirror.children;
+    var blocks = sheet.querySelectorAll(':scope > [data-line]');
+    var srcMax = ta.scrollHeight - ta.clientHeight;
+    var prvMax = previewEl.scrollHeight - previewEl.clientHeight;
+    if (srcMax <= 0 || prvMax <= 0 || !rows.length || !blocks.length) return (scrollPairs = []);
+
+    var pairs = [[0, 0]];
+    for (var i = 0; i < blocks.length; i++) {
+      var ln = +blocks[i].getAttribute('data-line');
+      var row = rows[ln];
+      if (!row) continue;
+      var s = row.offsetTop, p = blocks[i].offsetTop;
+      if (s <= 0 || p <= 0 || s >= srcMax || p >= prvMax) continue;
+      var last = pairs[pairs.length - 1];
+      if (s <= last[0] || p <= last[1]) continue;      // keep it monotonic
+      pairs.push([s, p]);
+    }
+    pairs.push([srcMax, prvMax]);
+    scrollPairs = pairs;
+    return pairs;
+  }
+
+  // Interpolate across the table. axis 0 maps source->preview, 1 the reverse.
+  function mapScroll(x, axis) {
+    var pairs = scrollPairs || buildPairs();
+    if (!pairs.length) return null;
+    var other = axis ? 0 : 1;
+    if (x <= pairs[0][axis]) return pairs[0][other];
+    var lo = 0, hi = pairs.length - 1;
+    while (lo < hi - 1) {
+      var mid = (lo + hi) >> 1;
+      if (pairs[mid][axis] <= x) lo = mid; else hi = mid;
+    }
+    var a = pairs[lo], b = pairs[hi];
+    if (x >= b[axis]) return b[other];
+    var span = b[axis] - a[axis];
+    if (span <= 0) return a[other];
+    return a[other] + ((x - a[axis]) / span) * (b[other] - a[other]);
+  }
+
   function linkScroll(from, to) {
-    if (syncLock) return;
-    var pad = window.innerHeight * 0.55;
-    var fmax = from.scrollHeight - from.clientHeight - pad;
-    var tmax = to.scrollHeight - to.clientHeight - pad;
-    if (fmax <= 4 || tmax <= 4) return;      // too short to correspond
+    if (syncLock || !syncScroll) return;
+    var axis = from === ta ? 0 : 1;
+    var y = mapScroll(from.scrollTop, axis);
+    if (y == null) return;
+    var max = to.scrollHeight - to.clientHeight;
+    y = Math.max(0, Math.min(max, Math.round(y)));
+    if (Math.abs(to.scrollTop - y) < 1) return;
     syncLock++;
-    to.scrollTop = Math.min(1, Math.max(0, from.scrollTop / fmax)) * tmax;
+    to.scrollTop = y;
     requestAnimationFrame(function () { syncLock--; });
+  }
+
+  function setSyncScroll(on) {
+    syncScroll = !!on;
+    var b = $('btnSync');
+    if (b) {
+      b.classList.toggle('on', syncScroll);
+      b.setAttribute('aria-pressed', String(syncScroll));
+      b.title = syncScroll ? 'Linked scrolling \u2014 click to unlink' : 'Independent scrolling \u2014 click to link';
+    }
+    Store.setPref('sync', syncScroll ? 1 : 0);
+    if (syncScroll) { invalidatePairs(); linkScroll(ta, previewEl); }
   }
 
   /* ---------- splitter ---------- */
@@ -2301,7 +4302,7 @@ var MD = (function () {
       if (!dragging) return;
       var r = work.getBoundingClientRect();
       var x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-      var outline = document.body.classList.contains('outline-open') ? $('outline').offsetWidth : 0;
+      var outline = document.body.classList.contains('side-open') ? $('side').offsetWidth : 0;
       var pct = ((x - outline) / (r.width - outline)) * 100;
       pct = Math.min(80, Math.max(20, pct));
       $('paneSource').style.flexBasis = pct + '%';
@@ -2329,8 +4330,12 @@ var MD = (function () {
     var mod = e.ctrlKey || e.metaKey;
 
     if (e.key === 'Escape') {
-      if ($('help').classList.contains('open')) { $('help').classList.remove('open'); ta.focus(); return; }
-      if ($('findBar').classList.contains('open')) { toggleFind(false); return; }
+      if ($('wsMenu').classList.contains('open')) { closeWsMenu(); return; }
+      if ($('ask').classList.contains('open')) { askDone(false); return; }
+      if (paletteOpen()) { togglePalette(false); return; }
+      if ($('help').classList.contains('open')) { $('help').classList.remove('open'); focusEditor(); return; }
+      if ($('jumpBar').classList.contains('open')) { toggleJump(false); return; }
+      if (findOpen()) { toggleFind(false); return; }
       if (e.target === ta) { tabEscapes = true; return; }   // next Tab leaves the editor
     }
     if (e.key !== 'Tab' && e.key !== 'Shift') tabEscapes = false;
@@ -2341,25 +4346,47 @@ var MD = (function () {
       return;
     }
     if (mod && e.shiftKey && (e.key === 'C' || e.key === 'c')) { e.preventDefault(); copyHtml(); return; }
-    if (mod && e.shiftKey && (e.key === 'S' || e.key === 's')) { e.preventDefault(); save(true); return; }
-    if (mod && e.shiftKey && (e.key === 'O' || e.key === 'o')) {
-      e.preventDefault(); document.body.classList.toggle('outline-open'); $('btnOutline').classList.toggle('on'); return;
+    if (mod && e.shiftKey && (e.key === 'S' || e.key === 's')) { e.preventDefault(); exportNote(); return; }
+    if (mod && e.shiftKey && (e.key === 'O' || e.key === 'o')) { e.preventDefault(); toggleSide(); return; }
+    if (e.altKey && mod && (e.key === 'n' || e.key === 'N')) {
+      e.preventDefault(); ask('New note', '', function (v) { newNote(v, '# ' + v + '\n\n'); }); return;
+    }
+
+    if (e.altKey && !mod && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.target === ta) {
+      e.preventDefault(); moveLines(e.key === 'ArrowUp' ? -1 : 1); return;
     }
 
     if (mod && !e.shiftKey) {
       switch (e.key) {
-        case 's': case 'S': e.preventDefault(); save(false); return;
-        case 'o': case 'O': e.preventDefault(); open(); return;
+        case 'g': case 'G': e.preventDefault(); toggleJump(true); return;
+        case 'd': case 'D':
+          if (e.target !== ta) return;
+          e.preventDefault(); duplicateSelection(); return;
+        case 's': case 'S': e.preventDefault(); flushSave(false); return;
+        case 'o': case 'O': e.preventDefault(); $('picker').click(); return;
         case 'f': case 'F': e.preventDefault(); toggleFind(true); return;
-        case 'p': case 'P': e.preventDefault(); cycleMode(); return;
+        case 'p': case 'P': e.preventDefault(); togglePalette(true); return;
+        case '\\': e.preventDefault(); cycleMode(); return;
         case '/': e.preventDefault(); $('help').classList.toggle('open'); return;
       }
+    }
+
+    if (e.target === $('paletteInput')) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); movePalette(1); return; }
+      if (e.key === 'ArrowUp') { e.preventDefault(); movePalette(-1); return; }
+      if (e.key === 'Enter') { e.preventDefault(); runPalette(e.shiftKey); return; }
+      return;
+    }
+    if (e.target === $('askInput')) {
+      if (e.key === 'Enter') { e.preventDefault(); askDone(true); }
+      return;
     }
 
     if (e.target !== ta) {
       if (e.key === 'Enter' && (e.target === $('findInput') || e.target === $('replaceInput'))) {
         e.preventDefault(); findNext(e.shiftKey);
       }
+      if (e.key === 'Enter' && e.target === $('jumpInput')) { e.preventDefault(); doJump(); }
       return;
     }
 
@@ -2408,25 +4435,41 @@ var MD = (function () {
     editorEl = $('editor'); previewEl = $('panePreview');
 
     document.documentElement.style.setProperty('--sbw', measureScrollbar() + 'px');
-    setTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    // Storage first: preferences are read immediately below, and reading them
+    // from an unattached store would silently return defaults.
+    Store.attach(safeLocalStorage());
+
+    var savedTheme = Store.getPref('theme', null);
+    setTheme(savedTheme || (window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+    setSyncScroll(Store.getPref('sync', 1) !== 0);
     setMode(window.innerWidth < 860 ? 'source' : 'split');
 
-    ta.value = SAMPLE;
-    savedText = SAMPLE;
-    fullPaint();
-    renderPreview();
-    updateSlug();
+    bootWorkspace();
+    toggleSide(window.innerWidth >= 1100);
+    updateCaret();
 
     initGrip();
     ta.addEventListener('input', onInput);
-    ta.addEventListener('scroll', function () { syncMirrorScroll(); linkScroll(ta, previewEl); });
+    ta.addEventListener('scroll', function () {
+      syncMirrorScroll();
+      linkScroll(ta, previewEl);
+      if (findOpen()) scheduleMarks();
+    });
+    document.addEventListener('selectionchange', function () {
+      if (document.activeElement === ta) updateCaret();
+    });
+    ['keyup', 'mouseup', 'focus'].forEach(function (ev) {
+      ta.addEventListener(ev, updateCaret);
+    });
     previewEl.addEventListener('scroll', function () { linkScroll(previewEl, ta); });
     document.addEventListener('keydown', onKey);
 
     // toolbar
     var acts = {
-      btnOpen: open,
-      btnSave: function () { save(false); },
+      btnOpen: function () { $('picker').click(); },
+      btnSave: exportNote,
       btnBold: function () { wrapWith('**'); },
       btnItalic: function () { wrapWith('*'); },
       btnCode: function () { wrapWith('`'); },
@@ -2448,20 +4491,15 @@ var MD = (function () {
       btnPrint: function () { window.print(); },
       btnHelp: function () { $('help').classList.toggle('open'); },
       btnTheme: function () { setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); },
+      btnSync: function () { setSyncScroll(!syncScroll); },
       btnGutter: function () {
         document.body.classList.toggle('no-gutter');
         $('btnGutter').classList.toggle('on', !document.body.classList.contains('no-gutter'));
       },
-      btnOutline: function () {
-        document.body.classList.toggle('outline-open');
-        $('btnOutline').classList.toggle('on', document.body.classList.contains('outline-open'));
-      },
-      btnNew: function () {
-        if (ta.value !== savedText && !confirm('Discard unsaved changes?')) return;
-        ta.value = ''; fileHandle = null; fileName = 'untitled.md'; savedText = '';
-        ta.scrollTop = 0; previewEl.scrollTop = 0;
-        fullPaint(); renderPreview(); updateSlug(); focusEditor();
-      }
+      btnSide: function () { toggleSide(); },
+      btnNew: function () { ask('New note', '', function (v) { newNote(v, '# ' + v + '\n\n'); }); },
+      btnNewNote: function () { ask('New note', '', function (v) { newNote(v, '# ' + v + '\n\n'); }); },
+      btnPalette: function () { togglePalette(true); }
     };
     Object.keys(acts).forEach(function (id) {
       var el = $(id);
@@ -2472,7 +4510,13 @@ var MD = (function () {
       $(id).addEventListener('click', function () { setMode(id.slice(5)); });
     });
 
-    $('findInput').addEventListener('input', countMatches);
+    $('findInput').addEventListener('input', computeMatches);
+    ['case', 'word', 'regex'].forEach(function (o) {
+      $('opt-' + o).addEventListener('click', function () { setFindOpt(o); });
+    });
+    $('jumpGo').addEventListener('click', doJump);
+    $('jumpClose').addEventListener('click', function () { toggleJump(false); });
+    $('slugCaret').addEventListener('click', function () { toggleJump(true); });
     $('findPrev').addEventListener('click', function () { findNext(true); });
     $('findNext').addEventListener('click', function () { findNext(false); });
     $('findReplace').addEventListener('click', replaceOne);
@@ -2480,10 +4524,101 @@ var MD = (function () {
     $('findClose').addEventListener('click', function () { toggleFind(false); });
 
     $('outlineList').addEventListener('click', function (e) {
-      var a = e.target.closest('a');
-      if (!a) return;
+      var link = e.target.closest('a');
+      if (!link) return;
       e.preventDefault();
-      jumpTo(+a.dataset.i, a.dataset.id);
+      jumpTo(+link.dataset.i, link.dataset.id);
+    });
+
+    ['files', 'outline', 'links'].forEach(function (t) {
+      $('tab-' + t).addEventListener('click', function () { setSideTab(t); });
+    });
+    $('fileFilter').addEventListener('input', refreshFileList);
+
+    $('fileList').addEventListener('click', function (e) {
+      var row = e.target.closest('.row');
+      if (!row) return;
+      var act = e.target.closest('.row-act');
+      if (act) {
+        e.stopPropagation();
+        if (act.dataset.act === 'delete') deleteNote(row.dataset.id);
+        else {
+          var cur = Store.readNote(wsId, row.dataset.id);
+          if (!cur) return;
+          ask('Rename note', cur.name, function (v) {
+            var n = Store.renameNote(wsId, row.dataset.id, v);
+            if (n && row.dataset.id === noteId) { noteName = n.name; updateSlug(); }
+            refreshSide(); scheduleLinks();
+          });
+        }
+        return;
+      }
+      openNote(row.dataset.id);
+    });
+
+    $('panel-links').addEventListener('click', function (e) {
+      var main = e.target.closest('.row-main');
+      if (!main) return;
+      var target = main.dataset.link;
+      if (target) { followWikiLink(target); return; }
+      var row = e.target.closest('.row');
+      if (row && row.dataset.id) openNote(row.dataset.id);
+    });
+
+    sheet.addEventListener('click', function (e) {
+      var w = e.target.closest('.wikilink');
+      if (!w) return;
+      e.preventDefault();
+      followWikiLink(w.dataset.note);
+    });
+
+    $('wsPick').addEventListener('click', function (e) {
+      e.stopPropagation();
+      if ($('wsMenu').classList.contains('open')) closeWsMenu(); else openWsMenu();
+    });
+    $('wsUsage').addEventListener('click', function (e) { e.stopPropagation(); openWsMenu(); });
+    $('wsMenu').addEventListener('click', function (e) {
+      var it = e.target.closest('.menu-item');
+      if (it) wsAction(it.dataset.act);
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#wsMenu') && !e.target.closest('#wsPick')) closeWsMenu();
+    });
+
+    $('paletteInput').addEventListener('input', buildPalette);
+    $('paletteList').addEventListener('click', function (e) {
+      var it = e.target.closest('.pal-item');
+      if (!it) return;
+      palSel = +it.dataset.i;
+      runPalette(false);
+    });
+    $('palette').addEventListener('mousedown', function (e) {
+      if (e.target === $('palette')) togglePalette(false);
+    });
+
+    $('askOk').addEventListener('click', function () { askDone(true); });
+    $('askCancel').addEventListener('click', function () { askDone(false); });
+    $('ask').addEventListener('mousedown', function (e) { if (e.target === $('ask')) askDone(false); });
+
+    $('wsPicker').addEventListener('change', function (e) {
+      importFiles(e.target.files);
+      e.target.value = '';
+    });
+
+    // another tab wrote to the same workspace
+    window.addEventListener('storage', function (e) {
+      if (!e.key || e.key.indexOf(Store.prefix) !== 0) return;
+      if (e.key === Store.prefix + 'n.' + wsId + '.' + noteId) {
+        if (ta.value === savedText) {
+          var fresh = Store.readNote(wsId, noteId);
+          if (fresh && fresh.text !== ta.value) {
+            ta.value = fresh.text; savedText = fresh.text;
+            fullPaint(); renderPreview(); updateSlug();
+            toast('updated in another tab');
+          }
+        } else toast('this note also changed in another tab');
+      }
+      refreshSide();
     });
 
     $('help').addEventListener('click', function (e) {
@@ -2494,10 +4629,7 @@ var MD = (function () {
 
     $('picker').addEventListener('change', function (e) {
       var f = e.target.files && e.target.files[0];
-      if (!f) return;
-      var r = new FileReader();
-      r.onload = function () { loadText(String(r.result), f.name); };
-      r.readAsText(f);
+      if (f) importFile(f);
       e.target.value = '';
     });
 
@@ -2507,10 +4639,7 @@ var MD = (function () {
         e.preventDefault();
         if (ev !== 'drop') return;
         var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (!f) return;
-        var r = new FileReader();
-        r.onload = function () { loadText(String(r.result), f.name); };
-        r.readAsText(f);
+        if (f) importFile(f);
       });
     });
 
@@ -2538,10 +4667,15 @@ var MD = (function () {
     });
 
     window.addEventListener('beforeunload', function (e) {
+      flushSave(true);
       if (ta.value !== savedText) { e.preventDefault(); e.returnValue = ''; }
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') { flushSave(true); rememberPosition(); }
     });
 
     window.addEventListener('resize', function () {
+      invalidatePairs();
       document.documentElement.style.setProperty('--sbw', measureScrollbar() + 'px');
       syncMirrorScroll();
     });
