@@ -369,8 +369,12 @@ body.no-gutter .ln::before, body.no-gutter .editor::before { display: none; }
 /* markup tokens */
 .m-hash      { color: var(--mark); opacity: .55; }
 .m-line-h    { color: var(--mark); font-weight: 700; }
-.m-line-h1   { font-size: 1.18em; }
-.m-line-h2   { font-size: 1.08em; }
+/* Nothing here may alter glyph advance. The textarea underneath is a single
+   uniform size, so a larger font on a heading row would slide the caret out
+   of step with the text it sits on. Weight, colour and an inset rule are
+   safe; font-size, family and letter-spacing are not. */
+.m-line-h1   { box-shadow: inset 0 -1px 0 var(--rule); }
+.m-line-h2   { box-shadow: inset 0 -1px 0 var(--rule-soft); }
 .m-punct     { color: var(--ink-faint); }
 .m-strong    { font-weight: 700; }
 .m-em        { font-style: italic; }
@@ -1780,6 +1784,12 @@ var MD = (function () {
     });
   }
 
+  // Plain focus() scrolls the caret into view, which nudges the pane off the
+  // top on load. Keep the viewport where it is and let the user drive it.
+  function focusEditor() {
+    try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
+  }
+
   function syncMirrorScroll() {
     mirror.scrollTop = ta.scrollTop;
     mirror.scrollLeft = ta.scrollLeft;
@@ -1867,7 +1877,7 @@ var MD = (function () {
   /* ---------- text editing primitives (undo-preserving) ---------- */
 
   function setRange(start, end, text, selStart, selEnd) {
-    ta.focus();
+    focusEditor();
     ta.setSelectionRange(start, end);
     var ok = false;
     try {
@@ -2088,6 +2098,7 @@ var MD = (function () {
     savedText = ta.value;
     ta.setSelectionRange(0, 0);
     ta.scrollTop = 0;
+    previewEl.scrollTop = 0;
     schedulePaint(true);
     renderPreview();
     updateSlug();
@@ -2243,7 +2254,7 @@ var MD = (function () {
       $('mode-' + m).setAttribute('aria-pressed', String(m === mode));
     });
     if (mode !== 'source' && previewStale) renderPreview();
-    if (mode !== 'preview') requestAnimationFrame(function () { ta.focus(); syncMirrorScroll(); });
+    if (mode !== 'preview') requestAnimationFrame(function () { focusEditor(); syncMirrorScroll(); });
   }
 
   function cycleMode() {
@@ -2268,13 +2279,17 @@ var MD = (function () {
 
   /* ---------- scroll sync ---------- */
 
+  // Both panes carry 55vh of trailing room so the last line can sit mid-screen.
+  // That padding is not content, so it must come out of the ratio -- otherwise
+  // a short document maps a source position of zero onto a scrolled preview.
   function linkScroll(from, to) {
     if (syncLock) return;
-    var fmax = from.scrollHeight - from.clientHeight;
-    var tmax = to.scrollHeight - to.clientHeight;
-    if (fmax <= 0 || tmax <= 0) return;
+    var pad = window.innerHeight * 0.55;
+    var fmax = from.scrollHeight - from.clientHeight - pad;
+    var tmax = to.scrollHeight - to.clientHeight - pad;
+    if (fmax <= 4 || tmax <= 4) return;      // too short to correspond
     syncLock++;
-    to.scrollTop = (from.scrollTop / fmax) * tmax;
+    to.scrollTop = Math.min(1, Math.max(0, from.scrollTop / fmax)) * tmax;
     requestAnimationFrame(function () { syncLock--; });
   }
 
@@ -2444,7 +2459,8 @@ var MD = (function () {
       btnNew: function () {
         if (ta.value !== savedText && !confirm('Discard unsaved changes?')) return;
         ta.value = ''; fileHandle = null; fileName = 'untitled.md'; savedText = '';
-        fullPaint(); renderPreview(); updateSlug(); ta.focus();
+        ta.scrollTop = 0; previewEl.scrollTop = 0;
+        fullPaint(); renderPreview(); updateSlug(); focusEditor();
       }
     };
     Object.keys(acts).forEach(function (id) {
@@ -2530,8 +2546,11 @@ var MD = (function () {
       syncMirrorScroll();
     });
 
-    ta.focus();
     ta.setSelectionRange(0, 0);
+    focusEditor();
+    ta.scrollTop = 0;
+    previewEl.scrollTop = 0;
+    syncMirrorScroll();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
