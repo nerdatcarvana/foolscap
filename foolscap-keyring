@@ -1,0 +1,339 @@
+#!/usr/bin/env python3
+"""foolscap-keyring - keep foolscap key files somewhere that is not your laptop.
+
+A key file is 32 random bytes. Together with a passphrase it unlocks a foolscap
+note or workspace; on its own it unlocks nothing, and neither does the
+passphrase. Keeping the two apart is the whole point, so this stores keys
+somewhere separate - a Cloud Shell home directory, a jump box, a VM - and prints
+them in a form you can paste straight into foolscap without the bytes ever
+landing on the machine you write on.
+
+    foolscap-keyring new client-work        make a key and print it
+    foolscap-keyring ls                     what is in here
+    foolscap-keyring show client-work       print it again to paste
+    foolscap-keyring add old-key            read a pasted key from stdin
+    foolscap-keyring rm client-work
+    foolscap-keyring export client-work k   write the raw 32 bytes to a file
+    foolscap-keyring open notes.md.enc -k client-work   decrypt a file here
+
+Core commands need only the Python standard library. "open" additionally needs
+  pip3 install --user cryptography
+because AES-GCM is not in the stdlib.
+
+Keys live in ~/.foolscap/keys as 0600 files inside a 0700 directory. That is
+ordinary file protection, not encryption: anyone who can read your home
+directory can read them. Choose where you run this accordingly.
+"""
+
+import argparse
+import base64
+import binascii
+import getpass
+import hashlib
+import os
+import re
+import stat
+import sys
+from datetime import datetime, timezone
+
+KEY_BYTES = 32
+PREFIX = "FSKEY1"
+HOME = os.environ.get("FOOLSCAP_HOME") or os.path.join(os.path.expanduser("~"), ".foolscap")
+KEYDIR = os.path.join(HOME, "keys")
+NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+
+
+def die(msg, code=1):
+    print("foolscap-keyring: " + msg, file=sys.stderr)
+    raise SystemExit(code)
+
+
+def b64u(raw):
+    return base64.urlsafe_b64encode(raw).decode().rstrip("=")
+
+
+def unb64u(txt):
+    pad = "=" * (-len(txt) % 4)
+    return base64.urlsafe_b64decode(txt + pad)
+
+
+def to_text(raw):
+    """The single-line form foolscap accepts on paste."""
+    if len(raw) != KEY_BYTES:
+        die("a key is %d bytes, got %d" % (KEY_BYTES, len(raw)))
+    return "%s.%s.%08x" % (PREFIX, b64u(raw), binascii.crc32(raw) & 0xFFFFFFFF)
+
+
+def from_text(txt):
+    s = re.sub(r"\s+", "", txt or "")
+    if not s:
+        die("nothing to read")
+    parts = s.split(".")
+    if len(parts) != 3 or parts[0].upper() != PREFIX:
+        die("that is not a foolscap key (expected %s....)" % PREFIX)
+    try:
+        raw = unb64u(parts[1])
+    except Exception:
+        die("the key text is damaged")
+    if len(raw) != KEY_BYTES:
+        die("wrong length - the paste looks truncated")
+    if parts[2].lower() != "%08x" % (binascii.crc32(raw) & 0xFFFFFFFF):
+        die("checksum failed - the paste is incomplete or altered")
+    return raw
+
+
+def fingerprint(raw):
+    """Short, stable label so you can tell two keys apart without revealing them."""
+    return hashlib.sha256(raw).hexdigest()[:12]
+
+
+def keypath(name):
+    if not NAME_RE.match(name or ""):
+        die("names may use letters, digits, dot, dash and underscore")
+    return os.path.join(KEYDIR, name + ".key")
+
+
+def ensure_dir():
+    os.makedirs(KEYDIR, mode=0o700, exist_ok=True)
+    try:
+        os.chmod(KEYDIR, 0o700)
+        os.chmod(HOME, 0o700)
+    except OSError:
+        pass
+
+
+def read_key(name):
+    path = keypath(name)
+    if not os.path.exists(path):
+        die("no key called %r (try: foolscap-keyring ls)" % name)
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    if len(raw) != KEY_BYTES:
+        die("%s is %d bytes, not %d - it is not a foolscap key" % (path, len(raw), KEY_BYTES))
+    return raw
+
+
+def write_key(name, raw, force=False):
+    ensure_dir()
+    path = keypath(name)
+    if os.path.exists(path) and not force:
+        die("%r already exists. Use --force to replace it, but anything locked "
+            "with the old key will stay locked forever." % name)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(raw)
+    os.chmod(path, 0o600)
+    return path
+
+
+def warn_permissions():
+    """A key readable by others is not a second factor."""
+    try:
+        mode = stat.S_IMODE(os.stat(KEYDIR).st_mode)
+        if mode & 0o077:
+            print("warning: %s is mode %o - others can read your keys" % (KEYDIR, mode),
+                  file=sys.stderr)
+    except OSError:
+        pass
+
+
+# ---------------------------------------------------------------- commands
+
+def cmd_new(args):
+    raw = os.urandom(KEY_BYTES)
+    path = write_key(args.name, raw, args.force)
+    print(to_text(raw))
+    print("", file=sys.stderr)
+    print("saved   %s" % path, file=sys.stderr)
+    print("id      %s" % fingerprint(raw), file=sys.stderr)
+    print("", file=sys.stderr)
+    print("Paste the line above into foolscap's key file row. Losing this key", file=sys.stderr)
+    print("loses anything locked with it - there is no recovery.", file=sys.stderr)
+
+
+def cmd_ls(args):
+    ensure_dir()
+    warn_permissions()
+    names = sorted(f[:-4] for f in os.listdir(KEYDIR) if f.endswith(".key"))
+    if not names:
+        print("no keys yet - try: foolscap-keyring new <name>", file=sys.stderr)
+        return
+    print("%-26s %-14s %s" % ("NAME", "ID", "CREATED"))
+    for n in names:
+        path = keypath(n)
+        try:
+            raw = read_key(n)
+            fp = fingerprint(raw)
+        except SystemExit:
+            fp = "unreadable"
+        when = datetime.fromtimestamp(os.stat(path).st_mtime, timezone.utc)
+        print("%-26s %-14s %s" % (n, fp, when.strftime("%Y-%m-%d %H:%M UTC")))
+
+
+def cmd_show(args):
+    raw = read_key(args.name)
+    if args.raw:
+        sys.stdout.buffer.write(raw)
+    else:
+        print(to_text(raw))
+
+
+def cmd_add(args):
+    data = sys.stdin.buffer.read()
+    if args.raw:
+        raw = data
+        if len(raw) != KEY_BYTES:
+            die("expected exactly %d raw bytes, got %d" % (KEY_BYTES, len(raw)))
+    else:
+        raw = from_text(data.decode("utf-8", "replace"))
+    path = write_key(args.name, raw, args.force)
+    print("saved %s (%s)" % (path, fingerprint(raw)), file=sys.stderr)
+
+
+def cmd_rm(args):
+    path = keypath(args.name)
+    if not os.path.exists(path):
+        die("no key called %r" % args.name)
+    if not args.yes:
+        raw = read_key(args.name)
+        print("About to delete %s (%s)." % (path, fingerprint(raw)), file=sys.stderr)
+        print("Anything locked with it becomes unreadable forever.", file=sys.stderr)
+        if input("Type the key name to confirm: ").strip() != args.name:
+            die("not confirmed", 2)
+    # Overwrite before unlinking. Best effort only: on a journalling or
+    # copy-on-write filesystem the old blocks may survive regardless.
+    try:
+        with open(path, "r+b") as fh:
+            for _ in range(3):
+                fh.seek(0)
+                fh.write(os.urandom(KEY_BYTES))
+                fh.flush()
+                os.fsync(fh.fileno())
+    except OSError:
+        pass
+    os.remove(path)
+    print("removed %s" % path, file=sys.stderr)
+
+
+def cmd_export(args):
+    raw = read_key(args.name)
+    fd = os.open(args.path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(raw)
+    print("wrote %s (%s)" % (args.path, fingerprint(raw)), file=sys.stderr)
+
+
+def cmd_open(args):
+    try:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    except ImportError:
+        die("this command needs AES-GCM:  pip3 install --user cryptography")
+
+    with open(args.file, "r", encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
+    b64 = "".join(l.strip() for l in text.splitlines()
+                  if re.fullmatch(r"[A-Za-z0-9+/=]{4,}", l.strip()))
+    if not b64:
+        die("no encrypted block found in %s" % args.file)
+    blob = base64.b64decode(b64)
+    if blob[:6] != b"FSCENC":
+        die("not a foolscap encrypted file")
+    hdr, ct = blob[:40], blob[40:]
+    cost = int.from_bytes(hdr[8:12], "big")
+    wants_key = bool(hdr[7] & 2)
+
+    material = (args.passphrase or getpass.getpass("passphrase: ")).encode()
+    if wants_key:
+        if not args.key:
+            die("this file was locked with a key file too: pass -k <name>")
+        material += read_key(args.key)
+    elif args.key:
+        print("note: this file does not use a key file; -k ignored", file=sys.stderr)
+
+    if hdr[7] & 1:
+        if not (1024 <= cost <= 1048576) or (cost & (cost - 1)):
+            die("implausible scrypt cost in header")
+        key = hashlib.scrypt(material, salt=hdr[12:28], n=cost, r=8, p=1,
+                             dklen=32, maxmem=(128 * 8 * cost) * 2)
+    else:
+        if not (1000 <= cost <= 10_000_000):
+            die("implausible iteration count in header")
+        key = hashlib.pbkdf2_hmac("sha256", material, hdr[12:28], cost, 32)
+
+    try:
+        plain = AESGCM(key).decrypt(hdr[28:40], ct, hdr)
+    except Exception:
+        die("wrong passphrase or key file, or the file has been altered")
+
+    n = int.from_bytes(plain[:2], "big")
+    name = plain[2:2 + n].decode("utf-8", "replace")
+    body = plain[2 + n:]
+    if args.out:
+        target = args.out if args.out != "-" else None
+        if target:
+            with open(target, "wb") as fh:
+                fh.write(body)
+            print("wrote %s (%d bytes, original name %s)" % (target, len(body), name),
+                  file=sys.stderr)
+            return
+    print("original name: %s" % name, file=sys.stderr)
+    sys.stdout.buffer.write(body)
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser(
+        prog="foolscap-keyring",
+        description="Store foolscap key files away from the machine you write on.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="Keys live in %s\nSet FOOLSCAP_HOME to put them elsewhere." % KEYDIR)
+    sub = p.add_subparsers(dest="cmd")
+
+    n = sub.add_parser("new", help="generate a key and print it for pasting")
+    n.add_argument("name")
+    n.add_argument("--force", action="store_true", help="replace an existing key")
+    n.set_defaults(fn=cmd_new)
+
+    l = sub.add_parser("ls", help="list stored keys")
+    l.set_defaults(fn=cmd_ls)
+
+    s = sub.add_parser("show", help="print a key for pasting")
+    s.add_argument("name")
+    s.add_argument("--raw", action="store_true", help="write the 32 raw bytes to stdout")
+    s.set_defaults(fn=cmd_show)
+
+    a = sub.add_parser("add", help="store a key read from stdin")
+    a.add_argument("name")
+    a.add_argument("--raw", action="store_true", help="stdin is 32 raw bytes")
+    a.add_argument("--force", action="store_true")
+    a.set_defaults(fn=cmd_add)
+
+    r = sub.add_parser("rm", help="delete a key")
+    r.add_argument("name")
+    r.add_argument("--yes", action="store_true", help="skip the confirmation")
+    r.set_defaults(fn=cmd_rm)
+
+    e = sub.add_parser("export", help="write a key file to disk")
+    e.add_argument("name")
+    e.add_argument("path")
+    e.set_defaults(fn=cmd_export)
+
+    o = sub.add_parser("open", help="decrypt a foolscap file here")
+    o.add_argument("file")
+    o.add_argument("-k", "--key", help="name of the key file it needs")
+    o.add_argument("-o", "--out", help="write to this path instead of stdout")
+    o.add_argument("--passphrase", help="not recommended: visible in your shell history")
+    o.set_defaults(fn=cmd_open)
+
+    args = p.parse_args(argv)
+    if not getattr(args, "fn", None):
+        p.print_help()
+        return 0
+    args.fn(args)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except KeyboardInterrupt:
+        raise SystemExit(130)
